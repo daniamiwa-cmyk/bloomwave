@@ -1,0 +1,13 @@
+{
+  "name": "alora",
+  "private": true,
+  "scripts": {
+    "dev:api": "pnpm --filter @alora/api dev",
+    "dev:mobile": "pnpm --filter @alora/mobile start",
+    "build:shared": "pnpm --filter @alora/shared build",
+    "build:api": "pnpm --filter @alora/api build"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
