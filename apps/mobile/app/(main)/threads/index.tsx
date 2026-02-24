@@ -111,6 +111,15 @@ export default function ThreadsScreen() {
         renderItem={renderThread}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Ionicons name="chatbubbles-outline" size={48} color={colors.textMuted} />
+            <Text style={styles.emptyTitle}>No threads yet</Text>
+            <Text style={styles.emptySubtitle}>
+              Create a thread to give Alora focused context for a topic.
+            </Text>
+          </View>
+        }
       />
     </SafeAreaView>
   );
@@ -211,5 +220,22 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textMuted,
     marginTop: spacing.sm,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: spacing.xl,
+  },
+  emptyTitle: {
+    ...typography.h3,
+    color: colors.text,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  emptySubtitle: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });

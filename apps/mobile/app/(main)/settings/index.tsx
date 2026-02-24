@@ -99,6 +99,13 @@ export default function SettingsScreen() {
             description={`${profile?.pronouns || ''} \u00b7 ${profile?.boundary_preset?.replace(/_/g, ' ') || ''}`}
             onPress={() => {}}
           />
+          <SettingsRow
+            icon={profile?.interaction_mode === 'fantasy' ? 'flame-outline' : 'leaf-outline'}
+            label={`Mode: ${profile?.interaction_mode === 'fantasy' ? 'Fantasy' : 'Relational'}`}
+            description="Change how Alora shows up for you"
+            onPress={() => router.push('/(main)/settings/mode')}
+            color={profile?.interaction_mode === 'fantasy' ? '#E53935' : colors.primary}
+          />
         </View>
 
         <View style={styles.section}>

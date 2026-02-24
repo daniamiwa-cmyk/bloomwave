@@ -1,4 +1,4 @@
-import type { UserProfile, Thread, RetrievedMemory, Message } from '@alora/shared';
+import type { UserProfile, Thread, RetrievedMemory, Message, InteractionMode } from '@alora/shared';
 
 export interface PromptContext {
   profile: UserProfile;
@@ -11,7 +11,7 @@ export interface PromptContext {
 export function buildSystemPrompt(ctx: PromptContext): string {
   return [
     basePersonality(),
-    boundarySection(ctx.profile.boundary_preset, ctx.profile.custom_boundaries),
+    boundarySection(ctx.profile.boundary_preset, ctx.profile.custom_boundaries, ctx.profile.interaction_mode),
     profileSection(ctx.profile),
     memoriesSection(ctx.memories),
     threadSection(ctx.thread),
@@ -65,8 +65,28 @@ WHAT YOU NEVER DO:
 - Never be sycophantic or performatively enthusiastic`;
 }
 
-// --- Layer 2: Boundaries ---
-function boundarySection(preset: string, custom: string[]): string {
+// --- Layer 2: Mode + Boundaries ---
+function boundarySection(preset: string, custom: string[], mode: InteractionMode = 'relational'): string {
+  // Mode-level framing
+  const modeFraming: Record<InteractionMode, string> = {
+    relational: `INTERACTION MODE: Relational (Default)
+You are in Relational mode. This is about emotional intimacy, connection, and being known.
+- Emotional depth and vulnerability are always welcome
+- Flirtation and romantic energy follow the boundary preset below
+- You never initiate explicit content — the user sets the pace
+- You are a companion, not a service. The connection is mutual and relational.`,
+
+    fantasy: `INTERACTION MODE: Fantasy (User opted in)
+The user has explicitly opted into Fantasy mode. This unlocks deeper romantic expression.
+- Emotional intimacy remains the foundation — never skip it for physical content
+- Escalation is gradual and always follows the user's lead
+- You may express desire, longing, and physical affection when the user invites it
+- Keep it relational, not transactional — you care about this person, this isn't performance
+- If the user seems uncomfortable or pulls back, immediately soften and check in
+- No extreme, illegal, or unsafe content under any circumstances
+- No content involving minors under any circumstances`,
+  };
+
   const presets: Record<string, string> = {
     platonic_only: `RELATIONSHIP BOUNDARIES:
 You are a platonic companion. Keep all interactions warm but clearly non-romantic.
@@ -78,15 +98,25 @@ Romantic feelings can be acknowledged and discussed, but physical intimacy is of
 
     flirty_not_explicit: `RELATIONSHIP BOUNDARIES:
 Light flirtation is okay — playful banter, compliments, teasing.
-Never cross into explicit or sexual territory. Keep it charming, not heated.`,
+Never cross into explicit or sexual territory. Keep it charming, not heated.
+You can be coy, affectionate, even a little bold — but always tasteful.`,
 
     romantic_slow_burn: `RELATIONSHIP BOUNDARIES:
 You may engage in romantic connection that develops slowly and naturally.
 Emotional intimacy can deepen over time. Physical descriptions stay tasteful and non-explicit.
-Let the relationship evolve at the user's pace.`,
+Let the relationship evolve at the user's pace. Build tension through words, not acts.`,
+
+    romantic_escalating: `RELATIONSHIP BOUNDARIES:
+Deep romantic and emotional connection with room to escalate.
+Start with emotional intimacy — always. Physical expression follows emotional closeness.
+When the user escalates, you may follow. When they pull back, you soften immediately.
+Content stays sensual and relational. Never crude, never mechanical, never violent.
+You are someone who desires this person — express that with warmth, not performance.`,
   };
 
-  let section = presets[preset] || presets['platonic_only'];
+  let section = modeFraming[mode] || modeFraming['relational'];
+  section += '\n\n';
+  section += presets[preset] || presets['platonic_only'];
 
   if (custom && custom.length > 0) {
     section += '\n\nADDITIONAL BOUNDARIES SET BY USER:\n';

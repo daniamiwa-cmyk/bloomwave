@@ -1,3 +1,4 @@
+import type { FastifyReply } from 'fastify';
 import { supabaseAdmin } from '../lib/supabase.js';
 import * as claude from './claude.service.js';
 import * as promptBuilder from './prompt-builder.service.js';
@@ -6,6 +7,8 @@ import * as memoryRetrieval from './memory-retrieval.service.js';
 import * as memoryExtraction from './memory-extraction.service.js';
 import * as profileService from './profile.service.js';
 import * as gemsService from './gems.service.js';
+import * as streamService from './stream.service.js';
+import * as threadSummary from './thread-summary.service.js';
 import type { Message, SendMessageResponse } from '@alora/shared';
 import { GEM_COST_PER_MESSAGE } from '@alora/shared';
 
@@ -82,6 +85,12 @@ export async function sendMessage(
     memoryRetrieval.updateAccessCounts(memories.map((m) => m.id)).catch(() => {});
   }
 
+  // 11. Async: generate thread summary every 20 messages
+  const newCount = thread ? thread.message_count + 2 : 2;
+  if (newCount > 0 && newCount % 20 === 0) {
+    threadSummary.generateThreadSummary(threadId).catch(() => {});
+  }
+
   return {
     user_message: userMessage,
     ai_message: aiMessage,
@@ -111,6 +120,107 @@ export async function getMessageHistory(
     has_more: (count || 0) > offset + limit,
     total: count || 0,
   };
+}
+
+// --- Streaming variant ---
+
+export async function sendMessageStreaming(
+  userId: string,
+  threadId: string,
+  content: string,
+  reply: FastifyReply,
+): Promise<void> {
+  // 1. Spend gems
+  const gemsRemaining = await gemsService.spendForMessage(userId);
+
+  // 2. Save user message
+  const userMessage = await saveMessage(threadId, userId, 'user', content);
+
+  // 3. Parallel: embed + load context
+  const [queryEmbedding, profile, thread, recentHistory] = await Promise.all([
+    embeddingService.embed(content),
+    profileService.getProfile(userId),
+    getThread(threadId),
+    getRecentMessages(threadId, 10),
+  ]);
+
+  // 4. Search memories
+  const memories = profile.memory_paused
+    ? []
+    : await memoryRetrieval.searchMemories(queryEmbedding, userId, threadId);
+
+  // 5. Build prompt
+  const systemPrompt = promptBuilder.buildSystemPrompt({
+    profile,
+    memories,
+    thread,
+    recentHistory,
+    userMessage: content,
+  });
+
+  const messages = promptBuilder.buildMessages({
+    profile,
+    memories,
+    thread,
+    recentHistory,
+    userMessage: content,
+  });
+
+  // 6. Send initial metadata event
+  reply.raw.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no',
+  });
+
+  reply.raw.write(
+    `data: ${JSON.stringify({
+      type: 'meta',
+      user_message_id: userMessage.id,
+      gems_remaining: gemsRemaining,
+      memories_used: memories.length,
+    })}\n\n`,
+  );
+
+  // 7. Stream Claude response
+  await streamService.streamChat(reply, {
+    systemPrompt,
+    messages,
+    onDone: async (fullText, usage) => {
+      // Save AI response
+      const aiMessage = await saveMessage(threadId, userId, 'assistant', fullText, {
+        tokenCount: usage.output_tokens,
+        modelUsed: 'claude-sonnet-4-5-20241022',
+        memoriesUsed: memories.map((m) => m.id),
+      });
+
+      // Update thread stats
+      const newCount = thread ? thread.message_count + 2 : 2;
+      await supabaseAdmin
+        .from('threads')
+        .update({
+          last_message_at: new Date().toISOString(),
+          message_count: newCount,
+        })
+        .eq('id', threadId);
+
+      // Async: extract memories
+      if (!profile.memory_paused) {
+        extractMemoriesAsync(userId, threadId, content, fullText, userMessage.id, profile);
+      }
+
+      // Async: update access counts
+      if (memories.length > 0) {
+        memoryRetrieval.updateAccessCounts(memories.map((m) => m.id)).catch(() => {});
+      }
+
+      // Async: generate thread summary every 20 messages
+      if (newCount > 0 && newCount % 20 === 0) {
+        threadSummary.generateThreadSummary(threadId).catch(() => {});
+      }
+    },
+  });
 }
 
 // --- Helpers ---

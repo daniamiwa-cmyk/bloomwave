@@ -2,6 +2,9 @@ import { supabase } from './supabase';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
+const MAX_RETRIES = 2;
+const RETRY_BASE_MS = 800;
+
 async function getAuthHeader(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
@@ -14,24 +17,47 @@ async function request<T>(
   path: string,
   body?: unknown,
 ): Promise<T> {
-  const headers = await getAuthHeader();
+  let lastError: unknown;
 
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const headers = await getAuthHeader();
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || `HTTP ${res.status}`);
+      const res = await fetch(`${API_URL}${path}`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...headers,
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Request failed' }));
+        const err = new Error(error.error || `HTTP ${res.status}`);
+        (err as any).status = res.status;
+        (err as any).code = error.code;
+        throw err;
+      }
+
+      if (res.status === 204) return undefined as T;
+      return res.json();
+    } catch (err: any) {
+      lastError = err;
+      // Don't retry on client errors (4xx) except 429 (rate limited)
+      const status = err?.status;
+      if (status && status >= 400 && status < 500 && status !== 429) {
+        throw err;
+      }
+      // Don't retry on the last attempt
+      if (attempt < MAX_RETRIES) {
+        const delay = RETRY_BASE_MS * Math.pow(2, attempt);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
   }
 
-  if (res.status === 204) return undefined as T;
-  return res.json();
+  throw lastError;
 }
 
 export const api = {

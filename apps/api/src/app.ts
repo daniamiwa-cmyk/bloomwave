@@ -15,14 +15,32 @@ export async function buildApp() {
 
   // Plugins
   await app.register(cors, { origin: true });
-  await app.register(rateLimit, { max: 100, timeWindow: '1 minute' });
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+    keyGenerator: (request) => request.userId || request.ip,
+  });
   await app.register(authPlugin);
 
   // Health check (unauthenticated)
   app.get('/health', async () => ({ status: 'ok', service: 'alora-api' }));
 
-  // Routes
-  await app.register(chatRoutes, { prefix: '/api/v1/chat' });
+  // Routes — chat routes have stricter rate limits
+  await app.register(
+    async (scoped) => {
+      scoped.addHook('onRoute', (routeOptions) => {
+        // Chat send/stream: 20 per minute (expensive AI calls)
+        if (routeOptions.url === '/send' || routeOptions.url === '/stream') {
+          routeOptions.config = {
+            ...routeOptions.config,
+            rateLimit: { max: 20, timeWindow: '1 minute' },
+          };
+        }
+      });
+      await scoped.register(chatRoutes);
+    },
+    { prefix: '/api/v1/chat' },
+  );
   await app.register(threadRoutes, { prefix: '/api/v1/threads' });
   await app.register(memoryRoutes, { prefix: '/api/v1/memories' });
   await app.register(profileRoutes, { prefix: '/api/v1/profile' });

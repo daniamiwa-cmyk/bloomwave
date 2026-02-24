@@ -9,6 +9,7 @@ import {
   Platform,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,10 +26,11 @@ export default function ChatScreen() {
   const {
     messages,
     isTyping,
+    streamingText,
     isLoadingHistory,
     gemsRemaining,
     setCurrentThread,
-    sendMessage,
+    sendMessageStreaming,
     threads,
   } = useChatStore();
   const { profile } = useAuthStore();
@@ -51,14 +53,17 @@ export default function ChatScreen() {
     }
   }, [messages.length, isTyping]);
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleSend = async () => {
     const text = input.trim();
     if (!text || sending) return;
 
     setInput('');
     setSending(true);
+    setError(null);
     try {
-      await sendMessage(text);
+      await sendMessageStreaming(text);
     } catch (err: any) {
       if (err.message?.includes('INSUFFICIENT_GEMS')) {
         Alert.alert(
@@ -66,6 +71,8 @@ export default function ChatScreen() {
           'You need more gems to continue chatting. Claim your daily gems or get more in the shop.',
           [{ text: 'OK' }],
         );
+      } else {
+        setError(err.message || 'Something went wrong. Tap to retry.');
       }
     } finally {
       setSending(false);
@@ -118,6 +125,21 @@ export default function ChatScreen() {
         </View>
       </View>
 
+      {/* Error banner */}
+      {error && (
+        <TouchableOpacity style={styles.errorBanner} onPress={() => setError(null)}>
+          <Text style={styles.errorText}>{error}</Text>
+          <Text style={styles.errorDismiss}>Tap to dismiss</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Loading history */}
+      {isLoadingHistory && messages.length === 0 && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color={colors.primary} />
+        </View>
+      )}
+
       {/* Messages */}
       <KeyboardAvoidingView
         style={styles.chatArea}
@@ -131,6 +153,17 @@ export default function ChatScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.messageList}
           ListFooterComponent={renderTypingIndicator}
+          ListEmptyComponent={
+            !isLoadingHistory ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyEmoji}>💜</Text>
+                <Text style={styles.emptyTitle}>Start a conversation</Text>
+                <Text style={styles.emptySubtitle}>
+                  Say hi, share what's on your mind, or ask me anything.
+                </Text>
+              </View>
+            ) : null
+          }
           showsVerticalScrollIndicator={false}
         />
 
@@ -291,5 +324,49 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: colors.border,
+  },
+  errorBanner: {
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FECACA',
+  },
+  errorText: {
+    ...typography.bodySmall,
+    color: '#DC2626',
+  },
+  errorDismiss: {
+    ...typography.caption,
+    color: '#DC2626',
+    opacity: 0.6,
+    marginTop: 2,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 120,
+    paddingHorizontal: spacing.xl,
+  },
+  emptyEmoji: {
+    fontSize: 48,
+    marginBottom: spacing.md,
+  },
+  emptyTitle: {
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  emptySubtitle: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });

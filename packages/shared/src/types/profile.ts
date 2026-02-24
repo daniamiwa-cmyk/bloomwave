@@ -1,4 +1,4 @@
-import { BoundaryPreset } from './boundary';
+import { BoundaryPreset, InteractionMode } from './boundary';
 
 export interface ImportantPerson {
   name: string;
@@ -25,6 +25,8 @@ export interface UserProfile {
   what_triggers: string[];
   core_values: string[];
   extended_profile: Record<string, unknown>;
+  interaction_mode: InteractionMode;
+  fantasy_mode_consented_at: string | null;
   memory_paused: boolean;
   onboarding_completed: boolean;
   gems: number;
@@ -42,6 +44,7 @@ export interface ProfileUpdate {
   comfort_style?: ComfortStyle;
   important_people?: ImportantPerson[];
   what_calms?: string[];
+  interaction_mode?: InteractionMode;
   memory_paused?: boolean;
   what_triggers?: string[];
   core_values?: string[];

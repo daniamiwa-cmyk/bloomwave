@@ -1,11 +1,15 @@
 import { create } from 'zustand';
 import { api } from '../services/api';
+import { supabase } from '../services/supabase';
 import type { Message, SendMessageResponse, MessageHistoryResponse, Thread } from '@alora/shared';
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface ChatState {
   threads: Thread[];
   currentThreadId: string | null;
   messages: Message[];
+  streamingText: string;
   isTyping: boolean;
   isLoadingHistory: boolean;
   hasMore: boolean;
@@ -15,6 +19,7 @@ interface ChatState {
   setCurrentThread: (threadId: string) => void;
   loadMessages: (threadId: string, page?: number) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
+  sendMessageStreaming: (content: string) => Promise<void>;
   createThread: (title: string, description?: string) => Promise<Thread>;
 }
 
@@ -22,6 +27,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   threads: [],
   currentThreadId: null,
   messages: [],
+  streamingText: '',
   isTyping: false,
   isLoadingHistory: false,
   hasMore: false,
@@ -54,11 +60,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
+  // Non-streaming fallback
   sendMessage: async (content) => {
     const { currentThreadId } = get();
     if (!currentThreadId) return;
 
-    // Optimistic: add user message
     const tempId = `temp-${Date.now()}`;
     const optimisticMsg: Message = {
       id: tempId,
@@ -93,10 +99,139 @@ export const useChatStore = create<ChatState>((set, get) => ({
         gemsRemaining: response.gems_remaining,
       }));
     } catch (error) {
-      // Remove optimistic message on failure
       set((state) => ({
         messages: state.messages.filter((m) => m.id !== tempId),
         isTyping: false,
+      }));
+      throw error;
+    }
+  },
+
+  // Streaming via SSE
+  sendMessageStreaming: async (content) => {
+    const { currentThreadId } = get();
+    if (!currentThreadId) return;
+
+    // Optimistic user message
+    const tempUserId = `temp-user-${Date.now()}`;
+    const tempAiId = `temp-ai-${Date.now()}`;
+
+    set((state) => ({
+      messages: [
+        ...state.messages,
+        {
+          id: tempUserId,
+          thread_id: currentThreadId,
+          user_id: '',
+          role: 'user' as const,
+          content,
+          token_count: null,
+          model_used: null,
+          memories_used: [],
+          created_at: new Date().toISOString(),
+        },
+      ],
+      isTyping: true,
+      streamingText: '',
+    }));
+
+    try {
+      // Get auth token
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      const response = await fetch(`${API_URL}/api/v1/chat/stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ thread_id: currentThreadId, content }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'Stream failed' }));
+        throw new Error(err.error || `HTTP ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No stream reader');
+
+      const decoder = new TextDecoder();
+      let streamedText = '';
+      let userMessageId = tempUserId;
+
+      // Add placeholder AI message
+      set((state) => ({
+        messages: [
+          ...state.messages,
+          {
+            id: tempAiId,
+            thread_id: currentThreadId,
+            user_id: '',
+            role: 'assistant' as const,
+            content: '',
+            token_count: null,
+            model_used: null,
+            memories_used: [],
+            created_at: new Date().toISOString(),
+          },
+        ],
+        isTyping: false,
+      }));
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+
+          try {
+            const event = JSON.parse(data);
+
+            if (event.type === 'meta') {
+              userMessageId = event.user_message_id || tempUserId;
+              set({ gemsRemaining: event.gems_remaining });
+            } else if (event.type === 'token') {
+              streamedText += event.text;
+              // Update the placeholder AI message with accumulated text
+              set((state) => ({
+                messages: state.messages.map((m) =>
+                  m.id === tempAiId ? { ...m, content: streamedText } : m,
+                ),
+                streamingText: streamedText,
+              }));
+            } else if (event.type === 'done') {
+              // Final update with complete text
+              set((state) => ({
+                messages: state.messages.map((m) =>
+                  m.id === tempAiId
+                    ? { ...m, content: event.full_text }
+                    : m,
+                ),
+                streamingText: '',
+              }));
+            } else if (event.type === 'error') {
+              throw new Error(event.message);
+            }
+          } catch {
+            // Ignore malformed SSE lines
+          }
+        }
+      }
+    } catch (error) {
+      // Remove optimistic messages on failure
+      set((state) => ({
+        messages: state.messages.filter(
+          (m) => m.id !== tempUserId && m.id !== tempAiId,
+        ),
+        isTyping: false,
+        streamingText: '',
       }));
       throw error;
     }
