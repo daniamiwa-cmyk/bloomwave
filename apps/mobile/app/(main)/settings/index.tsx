@@ -107,7 +107,7 @@ export default function SettingsScreen() {
             icon="shield-checkmark-outline"
             label="Privacy"
             description="See what data Alora stores"
-            onPress={() => {}}
+            onPress={() => router.push('/(main)/settings/privacy')}
           />
           <SettingsRow
             icon={profile?.memory_paused ? 'play-outline' : 'pause-outline'}
@@ -143,7 +143,7 @@ export default function SettingsScreen() {
             icon="diamond-outline"
             label={`${profile?.gems || 0} gems`}
             description="Get more gems to keep chatting"
-            onPress={() => {}}
+            onPress={() => router.push('/(main)/settings/gems')}
             color={colors.gem}
           />
           <SettingsRow

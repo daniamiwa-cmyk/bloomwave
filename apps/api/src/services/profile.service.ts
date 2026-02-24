@@ -68,7 +68,7 @@ export async function mergeProfileUpdate(
   const arrayFields = ['important_people', 'what_calms', 'what_triggers', 'core_values'];
 
   if (arrayFields.includes(field)) {
-    const existing = (profile as Record<string, unknown>)[field];
+    const existing = (profile as unknown as Record<string, unknown>)[field];
     if (Array.isArray(existing) && Array.isArray(value)) {
       const merged = [...existing, ...value];
       // Deduplicate by stringifying

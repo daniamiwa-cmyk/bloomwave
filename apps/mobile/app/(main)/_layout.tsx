@@ -44,6 +44,15 @@ export default function MainLayout() {
         }}
       />
       <Tabs.Screen
+        name="checkins"
+        options={{
+          title: 'Check-ins',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="notifications-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',

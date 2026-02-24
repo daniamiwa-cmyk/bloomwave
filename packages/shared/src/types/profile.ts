@@ -42,6 +42,7 @@ export interface ProfileUpdate {
   comfort_style?: ComfortStyle;
   important_people?: ImportantPerson[];
   what_calms?: string[];
+  memory_paused?: boolean;
   what_triggers?: string[];
   core_values?: string[];
 }

@@ -1,4 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
+import { supabaseAdmin } from '../lib/supabase.js';
 import * as profileService from '../services/profile.service.js';
 
 export const profileRoutes: FastifyPluginAsync = async (fastify) => {
@@ -34,6 +35,26 @@ export const profileRoutes: FastifyPluginAsync = async (fastify) => {
     return profileService.updateProfile(request.userId, {
       memory_paused: !profile.memory_paused,
     } as any);
+  });
+
+  // Register device token for push notifications
+  fastify.post<{
+    Body: { expo_push_token: string; platform: string; device_name: string };
+  }>('/device-token', async (request, reply) => {
+    const { expo_push_token, platform, device_name } = request.body;
+
+    await supabaseAdmin.from('device_tokens').upsert(
+      {
+        user_id: request.userId,
+        expo_push_token,
+        platform,
+        device_name,
+        is_active: true,
+      },
+      { onConflict: 'user_id,expo_push_token' },
+    );
+
+    return reply.code(201).send({ ok: true });
   });
 
   // Delete account and all data

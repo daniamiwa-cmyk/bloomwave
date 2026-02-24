@@ -60,8 +60,6 @@ export async function updateAccessCounts(memoryIds: string[]): Promise<void> {
   if (memoryIds.length === 0) return;
 
   for (const id of memoryIds) {
-    await supabaseAdmin.rpc('', {}).catch(() => {});
-    // Simple increment via update
     const { data } = await supabaseAdmin
       .from('memories')
       .select('access_count')
