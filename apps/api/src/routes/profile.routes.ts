@@ -8,11 +8,21 @@ export const profileRoutes: FastifyPluginAsync = async (fastify) => {
     return profileService.getProfile(request.userId);
   });
 
-  // Update profile
+  // Update profile (allowlist fields to prevent users setting gems, is_member, etc.)
   fastify.patch<{
     Body: Record<string, unknown>;
   }>('/', async (request) => {
-    return profileService.updateProfile(request.userId, request.body as any);
+    const ALLOWED_FIELDS = [
+      'display_name', 'pronouns', 'boundary_preset', 'custom_boundaries',
+      'preferred_tone', 'humor_style', 'comfort_style', 'interaction_mode',
+      'important_people', 'what_calms', 'what_triggers', 'core_values',
+      'memory_paused', 'accent_color', 'background_theme',
+      'extended_profile', 'fantasy_mode_consented_at',
+    ];
+    const filtered = Object.fromEntries(
+      Object.entries(request.body).filter(([k]) => ALLOWED_FIELDS.includes(k)),
+    );
+    return profileService.updateProfile(request.userId, filtered as any);
   });
 
   // Complete onboarding

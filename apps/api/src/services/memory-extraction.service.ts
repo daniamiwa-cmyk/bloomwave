@@ -1,5 +1,5 @@
 import { extractWithHaiku } from './claude.service.js';
-import type { MemoryCandidate, UserProfile } from '@alora/shared';
+import type { MemoryCandidate, UserProfile } from '@amai/shared';
 
 export async function extractMemories(
   userMessage: string,
@@ -53,7 +53,8 @@ RULES:
     const text = await raw;
     const parsed = JSON.parse(text);
     return parsed.candidates || [];
-  } catch {
+  } catch (err) {
+    console.error('Memory extraction failed:', err);
     return [];
   }
 }

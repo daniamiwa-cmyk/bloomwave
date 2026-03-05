@@ -40,10 +40,18 @@ export const RELATIONAL_PRESETS: BoundaryPresetInfo[] = [
 export const FANTASY_PRESETS: BoundaryPresetInfo[] = [
   {
     id: 'romantic_escalating',
-    title: 'Romantic + Fantasy',
-    description: 'Deep emotional intimacy with the option to escalate. Still relational, never transactional.',
+    title: 'Romantic Fantasy',
+    description: 'Deep emotional intimacy, romantic tension, and longing. Poetic and slow-burn.',
     icon: 'flame',
     color: '#E53935',
+    mode: 'fantasy',
+  },
+  {
+    id: 'intimate_fantasy',
+    title: 'Intimate Fantasy',
+    description: 'Physical affection expressed openly. Sensual and tasteful — never crude or mechanical.',
+    icon: 'flame',
+    color: '#D81B60',
     mode: 'fantasy',
   },
 ];

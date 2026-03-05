@@ -8,7 +8,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/stores/authStore';
 import { colors } from '@/theme/colors';
@@ -37,12 +39,13 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={styles.content}>
-        <Text style={styles.logo}>Alora</Text>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <Text style={styles.logo}>Amaia</Text>
         <Text style={styles.subtitle}>Your companion who remembers</Text>
 
         <View style={styles.form}>
@@ -88,8 +91,9 @@ export default function LoginScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -99,7 +103,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
   },
@@ -109,6 +113,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     textAlign: 'center',
     marginBottom: spacing.xs,
+    paddingTop: spacing.lg,
   },
   subtitle: {
     ...typography.body,

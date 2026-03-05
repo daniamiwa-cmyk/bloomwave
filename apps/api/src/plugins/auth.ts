@@ -12,8 +12,9 @@ const authPluginImpl: FastifyPluginAsync = async (fastify) => {
   fastify.decorateRequest('userId', '');
 
   fastify.addHook('onRequest', async (request: FastifyRequest, reply) => {
-    // Skip auth for health check
+    // Skip auth for health check and webhooks
     if (request.url === '/health') return;
+    if (request.url.startsWith('/webhooks/')) return;
 
     const authHeader = request.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {

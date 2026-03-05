@@ -42,17 +42,19 @@ export default function PrivacyScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.intro}>
-          Your privacy is fundamental to Alora. Here's exactly what we store, where,
+          Your privacy is fundamental to Amaia. Here's exactly what we store, where,
           and what you can do about it.
         </Text>
 
-        <Section title="What data Alora stores">
+        <Section title="What data Amaia stores">
           <Bullet text="Your name, pronouns, and preferences (what you set during onboarding)" />
-          <Bullet text="Your messages and Alora's responses" />
+          <Bullet text="Your messages and Amaia's responses" />
           <Bullet text="Memories extracted from conversations (summaries, not raw messages)" />
           <Bullet text="Thread names and descriptions you create" />
           <Bullet text="Check-in schedules" />
+          <Bullet text="Your date of birth (for age-gated features only — never shared)" />
           <Bullet text="Your email address (for sign-in only)" />
+          <Bullet text="Purchase history (managed by Apple, verified via RevenueCat)" />
         </Section>
 
         <Section title="Where it's stored">
@@ -62,7 +64,7 @@ export default function PrivacyScreen() {
           <Bullet text="No data is shared with advertisers or third parties" />
         </Section>
 
-        <Section title="What Alora does NOT do">
+        <Section title="What Amaia does NOT do">
           <Bullet text="No tracking or analytics" />
           <Bullet text="No advertising SDKs" />
           <Bullet text="No selling or sharing your data" />
@@ -75,7 +77,7 @@ export default function PrivacyScreen() {
             <Ionicons name="eye-outline" size={20} color={colors.primary} />
             <View style={styles.controlInfo}>
               <Text style={styles.controlTitle}>View all memories</Text>
-              <Text style={styles.controlDesc}>See everything Alora remembers in the Memories tab</Text>
+              <Text style={styles.controlDesc}>See everything Amaia remembers in the Memories tab</Text>
             </View>
           </View>
 
@@ -83,7 +85,7 @@ export default function PrivacyScreen() {
             <Ionicons name="create-outline" size={20} color={colors.primary} />
             <View style={styles.controlInfo}>
               <Text style={styles.controlTitle}>Edit any memory</Text>
-              <Text style={styles.controlDesc}>Correct or update what Alora remembers</Text>
+              <Text style={styles.controlDesc}>Correct or update what Amaia remembers</Text>
             </View>
           </View>
 
@@ -107,8 +109,8 @@ export default function PrivacyScreen() {
               </Text>
               <Text style={styles.controlDesc}>
                 {profile?.memory_paused
-                  ? 'Alora is not saving new memories right now'
-                  : 'Alora saves meaningful moments from your conversations'}
+                  ? 'Amaia is not saving new memories right now'
+                  : 'Amaia saves meaningful moments from your conversations'}
               </Text>
             </View>
           </View>
@@ -124,8 +126,19 @@ export default function PrivacyScreen() {
           </View>
         </Section>
 
-        <TouchableOpacity style={styles.policyLink}>
+        <TouchableOpacity
+          style={styles.policyLink}
+          onPress={() => Linking.openURL('https://amaia.app/privacy')}
+        >
           <Text style={styles.policyLinkText}>Read full privacy policy</Text>
+          <Ionicons name="open-outline" size={14} color={colors.primary} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.policyLink}
+          onPress={() => Linking.openURL('https://amaia.app/terms')}
+        >
+          <Text style={styles.policyLinkText}>Terms of Service</Text>
           <Ionicons name="open-outline" size={14} color={colors.primary} />
         </TouchableOpacity>
       </ScrollView>

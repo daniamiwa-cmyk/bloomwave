@@ -1,10 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView, Linking, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
+import { useTheme } from '@/theme/ThemeProvider';
 import { api } from '@/services/api';
-import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, radius } from '@/theme/spacing';
 
@@ -18,16 +18,17 @@ interface SettingsRowProps {
 }
 
 function SettingsRow({ icon, label, description, onPress, color, danger }: SettingsRowProps) {
+  const colors = useTheme();
   return (
-    <TouchableOpacity style={styles.row} onPress={onPress}>
+    <TouchableOpacity style={[styles.row, { backgroundColor: colors.surface, borderBottomColor: colors.divider }]} onPress={onPress}>
       <Ionicons
         name={icon}
         size={22}
         color={danger ? colors.error : color || colors.textSecondary}
       />
       <View style={styles.rowContent}>
-        <Text style={[styles.rowLabel, danger && { color: colors.error }]}>{label}</Text>
-        {description && <Text style={styles.rowDesc}>{description}</Text>}
+        <Text style={[styles.rowLabel, { color: colors.text }, danger && { color: colors.error }]}>{label}</Text>
+        {description && <Text style={[styles.rowDesc, { color: colors.textSecondary }]}>{description}</Text>}
       </View>
       <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
     </TouchableOpacity>
@@ -36,6 +37,7 @@ function SettingsRow({ icon, label, description, onPress, color, danger }: Setti
 
 export default function SettingsScreen() {
   const { profile, signOut } = useAuthStore();
+  const colors = useTheme();
   const router = useRouter();
 
   const handleToggleMemory = async () => {
@@ -49,7 +51,13 @@ export default function SettingsScreen() {
         { text: 'Cancel', style: 'cancel' },
         {
           text: paused ? 'Resume' : 'Pause',
-          onPress: () => api.post('/api/v1/profile/memory-pause'),
+          onPress: async () => {
+            try {
+              await api.post('/api/v1/profile/memory-pause');
+            } catch (err: any) {
+              Alert.alert('Error', err.message || 'Could not update memory setting');
+            }
+          },
         },
       ],
     );
@@ -87,33 +95,39 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>PROFILE</Text>
+          <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>PROFILE</Text>
           <SettingsRow
             icon="person-outline"
             label={profile?.display_name || 'Profile'}
             description={`${profile?.pronouns || ''} \u00b7 ${profile?.boundary_preset?.replace(/_/g, ' ') || ''}`}
-            onPress={() => {}}
+            onPress={() => router.push('/(main)/settings/profile')}
           />
           <SettingsRow
             icon={profile?.interaction_mode === 'fantasy' ? 'flame-outline' : 'leaf-outline'}
             label={`Mode: ${profile?.interaction_mode === 'fantasy' ? 'Fantasy' : 'Relational'}`}
-            description="Change how Alora shows up for you"
+            description="Change how Amaia shows up for you"
             onPress={() => router.push('/(main)/settings/mode')}
             color={profile?.interaction_mode === 'fantasy' ? '#E53935' : colors.primary}
+          />
+          <SettingsRow
+            icon="color-palette-outline"
+            label="Appearance"
+            description="Accent color & background theme"
+            onPress={() => router.push('/(main)/settings/appearance')}
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>PRIVACY & DATA</Text>
+          <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>PRIVACY & DATA</Text>
           <SettingsRow
             icon="shield-checkmark-outline"
             label="Privacy"
-            description="See what data Alora stores"
+            description="See what data Amaia stores"
             onPress={() => router.push('/(main)/settings/privacy')}
           />
           <SettingsRow
@@ -137,7 +151,13 @@ export default function SettingsScreen() {
                 {
                   text: 'Delete all',
                   style: 'destructive',
-                  onPress: () => api.delete('/api/v1/memories'),
+                  onPress: async () => {
+                    try {
+                      await api.delete('/api/v1/memories');
+                    } catch (err: any) {
+                      Alert.alert('Error', err.message || 'Could not delete memories');
+                    }
+                  },
                 },
               ])
             }
@@ -145,33 +165,44 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>GEMS</Text>
+          <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>COMMUNITY</Text>
           <SettingsRow
-            icon="diamond-outline"
-            label={`${profile?.gems || 0} gems`}
-            description="Get more gems to keep chatting"
-            onPress={() => router.push('/(main)/settings/gems')}
-            color={colors.gem}
-          />
-          <SettingsRow
-            icon="gift-outline"
-            label="Claim daily gems"
-            description="10 free gems every day"
-            onPress={async () => {
-              const result = await api.post<{ claimed: boolean; balance: number }>(
-                '/api/v1/gems/daily',
-              );
-              if (result.claimed) {
-                Alert.alert('Daily gems claimed!', `You now have ${result.balance} gems.`);
-              } else {
-                Alert.alert('Already claimed', "Come back tomorrow for more gems.");
-              }
-            }}
+            icon="sparkles-outline"
+            label="Request a Persona"
+            description="Suggest a persona you'd like to see"
+            onPress={() => router.push('/(main)/settings/request-persona')}
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>ACCOUNT</Text>
+          <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>SUPPORT</Text>
+          <SettingsRow
+            icon="heart-outline"
+            label="Crisis Resources"
+            description="Helplines and support if you're in crisis"
+            onPress={() =>
+              Alert.alert(
+                'Crisis Resources',
+                'If you or someone you know is in crisis:\n\n988 Suicide & Crisis Lifeline\nCall or text 988\n\nCrisis Text Line\nText HOME to 741741\n\nThese services are free, confidential, and available 24/7.',
+                [
+                  { text: 'Call 988', onPress: () => Linking.openURL('tel:988') },
+                  { text: 'Close', style: 'cancel' },
+                ],
+              )
+            }
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>ACCOUNT</Text>
+          {Platform.OS === 'ios' && (
+            <SettingsRow
+              icon="card-outline"
+              label="Manage Subscriptions"
+              description="View and manage in the App Store"
+              onPress={() => Linking.openURL('https://apps.apple.com/account/subscriptions')}
+            />
+          )}
           <SettingsRow
             icon="log-out-outline"
             label="Sign out"
@@ -198,14 +229,12 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   content: {
     paddingBottom: spacing.xxl,
   },
   title: {
     ...typography.h1,
-    color: colors.text,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     marginBottom: spacing.lg,
@@ -215,7 +244,6 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     ...typography.caption,
-    color: colors.textMuted,
     letterSpacing: 1.5,
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.sm,
@@ -226,20 +254,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     gap: spacing.md,
-    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: colors.divider,
   },
   rowContent: {
     flex: 1,
   },
   rowLabel: {
     ...typography.body,
-    color: colors.text,
   },
   rowDesc: {
     ...typography.caption,
-    color: colors.textSecondary,
     marginTop: 2,
   },
 });

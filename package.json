@@ -1,13 +1,16 @@
 {
-  "name": "alora",
+  "name": "amai",
   "private": true,
   "scripts": {
-    "dev:api": "pnpm --filter @alora/api dev",
-    "dev:mobile": "pnpm --filter @alora/mobile start",
-    "build:shared": "pnpm --filter @alora/shared build",
-    "build:api": "pnpm --filter @alora/api build"
+    "dev:api": "pnpm --filter @amai/api dev",
+    "dev:mobile": "pnpm --filter @amai/mobile start",
+    "build:shared": "pnpm --filter @amai/shared build",
+    "build:api": "pnpm --filter @amai/api build"
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@fal-ai/client": "^1.9.4"
   }
 }

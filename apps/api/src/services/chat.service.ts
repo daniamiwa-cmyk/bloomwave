@@ -9,8 +9,9 @@ import * as profileService from './profile.service.js';
 import * as gemsService from './gems.service.js';
 import * as streamService from './stream.service.js';
 import * as threadSummary from './thread-summary.service.js';
-import type { Message, SendMessageResponse } from '@alora/shared';
-import { GEM_COST_PER_MESSAGE } from '@alora/shared';
+import * as personaService from './persona.service.js';
+import type { Message, SendMessageResponse, Persona } from '@amai/shared';
+import { GEM_COST_PER_MESSAGE } from '@amai/shared';
 
 export async function sendMessage(
   userId: string,
@@ -31,18 +32,24 @@ export async function sendMessage(
     getRecentMessages(threadId, 10),
   ]);
 
-  // 4. Search memories (needs embedding from step 3)
+  // 4. Load persona from thread (if set)
+  const persona: Persona | null = thread?.persona_id
+    ? await personaService.getPersona(thread.persona_id).catch(() => null)
+    : null;
+
+  // 5. Search memories (needs embedding from step 3)
   const memories = profile.memory_paused
     ? []
     : await memoryRetrieval.searchMemories(queryEmbedding, userId, threadId);
 
-  // 5. Build prompt
+  // 6. Build prompt
   const systemPrompt = promptBuilder.buildSystemPrompt({
     profile,
     memories,
     thread,
     recentHistory,
     userMessage: content,
+    persona,
   });
 
   const messages = promptBuilder.buildMessages({
@@ -51,22 +58,23 @@ export async function sendMessage(
     thread,
     recentHistory,
     userMessage: content,
+    persona,
   });
 
-  // 6. Call Claude
+  // 7. Call Claude
   const aiResult = await claude.chat({
     systemPrompt,
     messages,
   });
 
-  // 7. Save AI response
+  // 8. Save AI response
   const aiMessage = await saveMessage(threadId, userId, 'assistant', aiResult.content, {
     tokenCount: aiResult.usage.output_tokens,
     modelUsed: aiResult.model,
     memoriesUsed: memories.map((m) => m.id),
   });
 
-  // 8. Update thread stats
+  // 9. Update thread stats
   await supabaseAdmin
     .from('threads')
     .update({
@@ -75,21 +83,24 @@ export async function sendMessage(
     })
     .eq('id', threadId);
 
-  // 9. Async: extract memories (don't block response)
+  // 10. Async: extract memories (don't block response)
   if (!profile.memory_paused) {
     extractMemoriesAsync(userId, threadId, content, aiResult.content, userMessage.id, profile);
   }
 
-  // 10. Async: update access counts
+  // 11. Async: update access counts
   if (memories.length > 0) {
     memoryRetrieval.updateAccessCounts(memories.map((m) => m.id)).catch(() => {});
   }
 
-  // 11. Async: generate thread summary every 20 messages
+  // 12. Async: generate thread summary every 20 messages
   const newCount = thread ? thread.message_count + 2 : 2;
   if (newCount > 0 && newCount % 20 === 0) {
     threadSummary.generateThreadSummary(threadId).catch(() => {});
   }
+
+  // 13. Async: check milestone unlocks
+  personaService.checkMilestoneUnlocks(userId).catch(() => {});
 
   return {
     user_message: userMessage,
@@ -100,10 +111,23 @@ export async function sendMessage(
 }
 
 export async function getMessageHistory(
+  userId: string,
   threadId: string,
   page: number = 0,
   limit: number = 30,
 ) {
+  // Verify user owns this thread before returning messages
+  const { data: thread } = await supabaseAdmin
+    .from('threads')
+    .select('id')
+    .eq('id', threadId)
+    .eq('user_id', userId)
+    .single();
+
+  if (!thread) {
+    throw new Error('Thread not found');
+  }
+
   const offset = page * limit;
 
   const { data, error, count } = await supabaseAdmin
@@ -144,18 +168,24 @@ export async function sendMessageStreaming(
     getRecentMessages(threadId, 10),
   ]);
 
-  // 4. Search memories
+  // 4. Load persona from thread (if set)
+  const persona: Persona | null = thread?.persona_id
+    ? await personaService.getPersona(thread.persona_id).catch(() => null)
+    : null;
+
+  // 5. Search memories
   const memories = profile.memory_paused
     ? []
     : await memoryRetrieval.searchMemories(queryEmbedding, userId, threadId);
 
-  // 5. Build prompt
+  // 6. Build prompt
   const systemPrompt = promptBuilder.buildSystemPrompt({
     profile,
     memories,
     thread,
     recentHistory,
     userMessage: content,
+    persona,
   });
 
   const messages = promptBuilder.buildMessages({
@@ -164,11 +194,12 @@ export async function sendMessageStreaming(
     thread,
     recentHistory,
     userMessage: content,
+    persona,
   });
 
-  // 6. Send initial metadata event
+  // 7. Send initial metadata event
   reply.raw.writeHead(200, {
-    'Content-Type': 'text/event-stream',
+    'Content-Type': 'text/event-stream; charset=utf-8',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
     'X-Accel-Buffering': 'no',
@@ -191,7 +222,7 @@ export async function sendMessageStreaming(
       // Save AI response
       const aiMessage = await saveMessage(threadId, userId, 'assistant', fullText, {
         tokenCount: usage.output_tokens,
-        modelUsed: 'claude-sonnet-4-5-20241022',
+        modelUsed: 'claude-sonnet-4-5-20250929',
         memoriesUsed: memories.map((m) => m.id),
       });
 
@@ -219,6 +250,9 @@ export async function sendMessageStreaming(
       if (newCount > 0 && newCount % 20 === 0) {
         threadSummary.generateThreadSummary(threadId).catch(() => {});
       }
+
+      // Async: check milestone unlocks
+      personaService.checkMilestoneUnlocks(userId).catch(() => {});
     },
   });
 }

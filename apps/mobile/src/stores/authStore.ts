@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { supabase } from '../services/supabase';
 import { api } from '../services/api';
-import type { UserProfile } from '@alora/shared';
+import { configurePurchases } from '../services/purchases';
+import type { UserProfile } from '@amai/shared';
 
 interface AuthState {
   userId: string | null;
@@ -35,11 +36,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
       });
       get().loadProfile();
+      configurePurchases(data.session.user.id);
     } else {
       set({ isLoading: false });
     }
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         set({
           userId: session.user.id,
@@ -47,10 +49,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isAuthenticated: true,
         });
         get().loadProfile();
+        configurePurchases(session.user.id);
       } else {
         set({ userId: null, email: null, profile: null, isAuthenticated: false });
       }
     });
+    // Store subscription for potential cleanup
+    (globalThis as any).__authSubscription = subscription;
   },
 
   signUp: async (email, password) => {

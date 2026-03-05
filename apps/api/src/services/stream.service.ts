@@ -9,19 +9,21 @@ interface StreamOptions {
   onDone?: (fullText: string, usage: { input_tokens: number; output_tokens: number }) => void;
 }
 
-const DEFAULT_MODEL = 'claude-sonnet-4-5-20241022';
+const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
 
 export async function streamChat(
   reply: FastifyReply,
   options: StreamOptions,
 ): Promise<void> {
-  // Set SSE headers
-  reply.raw.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    Connection: 'keep-alive',
-    'X-Accel-Buffering': 'no',
-  });
+  // Set SSE headers (skip if already sent by caller)
+  if (!reply.raw.headersSent) {
+    reply.raw.writeHead(200, {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+  }
 
   let fullText = '';
   let usage = { input_tokens: 0, output_tokens: 0 };

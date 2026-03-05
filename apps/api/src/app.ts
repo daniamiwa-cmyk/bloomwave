@@ -8,13 +8,20 @@ import { memoryRoutes } from './routes/memories.routes.js';
 import { profileRoutes } from './routes/profile.routes.js';
 import { checkinRoutes } from './routes/checkins.routes.js';
 import { gemsRoutes } from './routes/gems.routes.js';
+import { personaRoutes } from './routes/personas.routes.js';
+import { personaRequestRoutes } from './routes/personaRequests.routes.js';
+import { webhookRoutes } from './routes/webhooks.routes.js';
 import { AppError } from './utils/errors.js';
 
 export async function buildApp() {
   const app = Fastify({ logger: true });
 
   // Plugins
-  await app.register(cors, { origin: true });
+  await app.register(cors, {
+    origin: process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(',')
+      : true,
+  });
   await app.register(rateLimit, {
     max: 100,
     timeWindow: '1 minute',
@@ -23,7 +30,7 @@ export async function buildApp() {
   await app.register(authPlugin);
 
   // Health check (unauthenticated)
-  app.get('/health', async () => ({ status: 'ok', service: 'alora-api' }));
+  app.get('/health', async () => ({ status: 'ok', service: 'amaia-api' }));
 
   // Routes — chat routes have stricter rate limits
   await app.register(
@@ -46,6 +53,9 @@ export async function buildApp() {
   await app.register(profileRoutes, { prefix: '/api/v1/profile' });
   await app.register(checkinRoutes, { prefix: '/api/v1/checkins' });
   await app.register(gemsRoutes, { prefix: '/api/v1/gems' });
+  await app.register(personaRoutes, { prefix: '/api/v1/personas' });
+  await app.register(personaRequestRoutes, { prefix: '/api/v1/persona-requests' });
+  await app.register(webhookRoutes, { prefix: '/webhooks' });
 
   // Global error handler
   app.setErrorHandler((error, request, reply) => {

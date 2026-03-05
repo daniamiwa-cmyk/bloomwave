@@ -30,6 +30,10 @@ export interface UserProfile {
   memory_paused: boolean;
   onboarding_completed: boolean;
   gems: number;
+  accent_color: string | null;
+  background_theme: string | null;
+  is_member: boolean;
+  membership_type: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -45,9 +49,13 @@ export interface ProfileUpdate {
   important_people?: ImportantPerson[];
   what_calms?: string[];
   interaction_mode?: InteractionMode;
+  fantasy_mode_consented_at?: string;
+  extended_profile?: Record<string, unknown>;
   memory_paused?: boolean;
   what_triggers?: string[];
   core_values?: string[];
+  accent_color?: string;
+  background_theme?: string;
 }
 
 export interface OnboardingPayload {

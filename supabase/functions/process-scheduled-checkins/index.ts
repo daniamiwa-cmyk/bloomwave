@@ -41,7 +41,7 @@ Deno.serve(async (req: Request) => {
         );
 
         await sendExpoPush(tokens, {
-          title: 'Alora',
+          title: 'Amaia',
           body: checkin.prompt_template
             ? checkin.prompt_template.replace('{{topic}}', checkin.topic)
             : `Hey, how's ${checkin.topic} going?`,

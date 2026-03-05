@@ -3,7 +3,8 @@ export type BoundaryPreset =
   | 'no_sexual_content'
   | 'flirty_not_explicit'
   | 'romantic_slow_burn'
-  | 'romantic_escalating';
+  | 'romantic_escalating'
+  | 'intimate_fantasy';
 
 export type InteractionMode = 'relational' | 'fantasy';
 

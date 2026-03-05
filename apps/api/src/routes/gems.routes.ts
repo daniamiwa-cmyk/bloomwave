@@ -15,7 +15,7 @@ export const gemsRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Claim daily free gems
-  fastify.post('/daily', async (request) => {
+  fastify.post('/daily', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request) => {
     return gemsService.claimDailyGems(request.userId);
   });
 
@@ -24,18 +24,33 @@ export const gemsRoutes: FastifyPluginAsync = async (fastify) => {
     Body: {
       product_id: string;
       transaction_id: string;
-      receipt: string;
     };
-  }>('/purchase', async (request) => {
+  }>('/purchase', async (request, reply) => {
     const { product_id, transaction_id } = request.body;
 
-    // TODO: Verify receipt with Apple/RevenueCat before crediting
-    // For now, look up the product and credit gems
     const products = await gemsService.getProducts();
     const product = products.find((p: any) => p.product_id === product_id);
 
     if (!product) {
-      return { error: 'Invalid product' };
+      return reply.code(400).send({ error: 'Invalid product' });
+    }
+
+    // Idempotency: if already processed, return current balance
+    const alreadyProcessed = await gemsService.checkTransactionProcessed(transaction_id);
+    if (alreadyProcessed) {
+      const balance = await gemsService.getBalance(request.userId);
+      return { gems: balance, purchased: product.gems };
+    }
+
+    // Verify the transaction with RevenueCat
+    const verified = await gemsService.verifyRevenueCatTransaction(
+      request.userId,
+      transaction_id,
+      product_id,
+    );
+
+    if (!verified) {
+      return reply.code(403).send({ error: 'Transaction verification failed' });
     }
 
     const balance = await gemsService.addGems(

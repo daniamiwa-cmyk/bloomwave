@@ -1,8 +1,8 @@
 export const colors = {
   // Primary palette
-  primary: '#7C5CFC',
-  primaryLight: '#A78BFA',
-  primaryDark: '#5B3FD4',
+  primary: '#6246EA',
+  primaryLight: '#8B74F8',
+  primaryDark: '#4A30C7',
 
   // Warm accents
   rose: '#FF6B8A',
@@ -31,7 +31,7 @@ export const colors = {
   error: '#F44336',
 
   // Chat bubbles
-  userBubble: '#7C5CFC',
+  userBubble: '#6246EA',
   userBubbleText: '#FFFFFF',
   aiBubble: '#FFF5F0',
   aiBubbleText: '#2D2438',

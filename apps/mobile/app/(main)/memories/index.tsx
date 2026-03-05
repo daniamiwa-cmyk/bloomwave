@@ -14,7 +14,7 @@ import { api } from '@/services/api';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, radius } from '@/theme/spacing';
-import type { Memory, MemoryListResponse } from '@alora/shared';
+import type { Memory, MemoryListResponse } from '@amai/shared';
 
 const EMOTION_COLORS: Record<string, string> = {
   joyful: '#4CAF50',

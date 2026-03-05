@@ -23,7 +23,7 @@ export async function generateThreadSummary(threadId: string): Promise<void> {
 
   const conversation = messages
     .reverse()
-    .map((m) => `${m.role === 'user' ? 'User' : 'Alora'}: ${m.content}`)
+    .map((m) => `${m.role === 'user' ? 'User' : 'Amaia'}: ${m.content}`)
     .join('\n');
 
   const prompt = `Summarize this conversation thread for an AI companion's context.

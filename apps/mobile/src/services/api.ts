@@ -1,6 +1,12 @@
 import { supabase } from './supabase';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+const RAW_API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+
+// Enforce HTTPS in production builds
+const API_URL =
+  !__DEV__ && RAW_API_URL.startsWith('http://')
+    ? RAW_API_URL.replace('http://', 'https://')
+    : RAW_API_URL;
 
 const MAX_RETRIES = 2;
 const RETRY_BASE_MS = 800;
@@ -26,10 +32,10 @@ async function request<T>(
       const res = await fetch(`${API_URL}${path}`, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
           ...headers,
         },
-        body: body ? JSON.stringify(body) : undefined,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
       });
 
       if (!res.ok) {

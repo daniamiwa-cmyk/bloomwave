@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../lib/supabase.js';
-import type { RetrievedMemory } from '@alora/shared';
+import type { RetrievedMemory } from '@amai/shared';
 
 export async function searchMemories(
   queryEmbedding: number[],

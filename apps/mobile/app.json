@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Alora",
-    "slug": "alora",
+    "name": "Amaia",
+    "slug": "amaia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "alora",
+    "scheme": "amaia",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -15,9 +15,11 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.alora.companion",
+      "bundleIdentifier": "com.amaia.companion",
+      "buildNumber": "1",
       "infoPlist": {
-        "NSUserTrackingUsageDescription": "Alora does not track you. This permission is never requested."
+        "NSUserTrackingUsageDescription": "Amaia does not track you. This permission is never requested.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "privacyManifests": {
         "NSPrivacyAccessedAPITypes": [
@@ -38,6 +40,18 @@
             "NSPrivacyCollectedDataTypeLinked": true,
             "NSPrivacyCollectedDataTypeTracking": false,
             "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeDateOfBirth",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePurchaseHistory",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
           }
         ],
         "NSPrivacyTracking": false,
@@ -49,7 +63,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFF9F5"
       },
-      "package": "com.alora.companion"
+      "package": "com.amaia.companion"
     },
     "plugins": [
       "expo-router",
@@ -60,7 +74,8 @@
           "icon": "./assets/images/notification-icon.png",
           "color": "#7C5CFC"
         }
-      ]
+      ],
+      "react-native-purchases"
     ]
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,21 +7,29 @@ import {
   TextInput,
   StyleSheet,
   Alert,
+  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useChatStore } from '@/stores/chatStore';
+import { PersonaPicker } from '@/components/personas/PersonaPicker';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, radius } from '@/theme/spacing';
-import type { Thread } from '@alora/shared';
+import type { Thread, PersonaCard } from '@amai/shared';
 
 export default function ThreadsScreen() {
-  const { threads, loadThreads, createThread } = useChatStore();
+  const { threads: rawThreads, loadThreads, createThread, deleteThread } = useChatStore();
+  // Deduplicate threads by ID to prevent React key warnings
+  const threads = rawThreads.filter(
+    (t, i, arr) => arr.findIndex((x) => x.id === t.id) === i,
+  );
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [selectedPersona, setSelectedPersona] = useState<PersonaCard | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,35 +39,98 @@ export default function ThreadsScreen() {
   const handleCreate = async () => {
     if (!newTitle.trim()) return;
     try {
-      const thread = await createThread(newTitle.trim(), newDesc.trim() || undefined);
+      const thread = await createThread(
+        newTitle.trim(),
+        newDesc.trim() || undefined,
+        selectedPersona?.id,
+      );
       setShowCreate(false);
       setNewTitle('');
       setNewDesc('');
+      setSelectedPersona(null);
       router.push(`/(main)/chat/${thread.id}`);
     } catch (err: any) {
       Alert.alert('Error', err.message);
     }
   };
 
+  const handleDeleteThread = (thread: Thread) => {
+    Alert.alert(
+      'Delete conversation',
+      `Delete "${thread.title}"? This can't be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteThread(thread.id);
+            } catch (err: any) {
+              Alert.alert('Error', err.message);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const renderRightActions = (
+    _progress: Animated.AnimatedInterpolation<number>,
+    dragX: Animated.AnimatedInterpolation<number>,
+    thread: Thread,
+  ) => {
+    const scale = dragX.interpolate({
+      inputRange: [-80, 0],
+      outputRange: [1, 0.5],
+      extrapolate: 'clamp',
+    });
+
+    return (
+      <TouchableOpacity
+        style={styles.deleteAction}
+        onPress={() => handleDeleteThread(thread)}
+      >
+        <Animated.View style={{ transform: [{ scale }] }}>
+          <Ionicons name="trash-outline" size={22} color="#FFFFFF" />
+          <Text style={styles.deleteActionText}>Delete</Text>
+        </Animated.View>
+      </TouchableOpacity>
+    );
+  };
+
   const renderThread = ({ item }: { item: Thread }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => router.push(`/(main)/chat/${item.id}`)}
+    <Swipeable
+      renderRightActions={(progress, dragX) =>
+        renderRightActions(progress, dragX, item)
+      }
+      overshootRight={false}
     >
-      <View style={[styles.colorBar, { backgroundColor: item.color }]} />
-      <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        {item.description && (
-          <Text style={styles.cardDesc} numberOfLines={2}>
-            {item.description}
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push(`/(main)/chat/${item.id}`)}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.colorBar, { backgroundColor: item.color }]} />
+        <View style={styles.cardContent}>
+          <Text style={styles.cardTitle}>{item.title}</Text>
+          {item.persona_name && (
+            <Text style={styles.personaLabel}>
+              {item.persona_emoji} with {item.persona_name}
+            </Text>
+          )}
+          {item.description && (
+            <Text style={styles.cardDesc} numberOfLines={2}>
+              {item.description}
+            </Text>
+          )}
+          <Text style={styles.cardMeta}>
+            {item.message_count} messages
+            {item.context_summary ? ' \u00b7 has summary' : ''}
           </Text>
-        )}
-        <Text style={styles.cardMeta}>
-          {item.message_count} messages
-          {item.context_summary ? ' \u00b7 has summary' : ''}
-        </Text>
-      </View>
-    </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
   );
 
   return (
@@ -76,6 +147,10 @@ export default function ThreadsScreen() {
 
       {showCreate && (
         <View style={styles.createForm}>
+          <PersonaPicker
+            selectedId={selectedPersona?.id || null}
+            onSelect={setSelectedPersona}
+          />
           <TextInput
             style={styles.input}
             placeholder="Thread name (e.g. My anxiety)"
@@ -103,7 +178,7 @@ export default function ThreadsScreen() {
       )}
 
       <Text style={styles.sectionHint}>
-        Threads help Alora stay focused and pull the right memories.
+        Threads help Amaia stay focused and pull the right memories.
       </Text>
 
       <FlatList
@@ -116,7 +191,7 @@ export default function ThreadsScreen() {
             <Ionicons name="chatbubbles-outline" size={48} color={colors.textMuted} />
             <Text style={styles.emptyTitle}>No threads yet</Text>
             <Text style={styles.emptySubtitle}>
-              Create a thread to give Alora focused context for a topic.
+              Create a thread to give Amaia focused context for a topic.
             </Text>
           </View>
         }
@@ -211,6 +286,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
   },
+  personaLabel: {
+    ...typography.caption,
+    color: colors.primary,
+    fontWeight: '600',
+    marginTop: 2,
+  },
   cardDesc: {
     ...typography.bodySmall,
     color: colors.textSecondary,
@@ -237,5 +318,19 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
+  },
+  deleteAction: {
+    backgroundColor: colors.error,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: radius.md,
+    marginLeft: spacing.xs,
+  },
+  deleteActionText: {
+    ...typography.caption,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    marginTop: 2,
   },
 });

@@ -11,15 +11,18 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Purchases from 'react-native-purchases';
 import { api } from '@/services/api';
+import { purchaseGems, restorePurchases, isUserCancellation } from '@/services/purchases';
 import { useAuthStore } from '@/stores/authStore';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, radius } from '@/theme/spacing';
-import type { GemProduct } from '@alora/shared';
+import type { GemProduct } from '@amai/shared';
 
 export default function GemsScreen() {
   const [products, setProducts] = useState<GemProduct[]>([]);
+  const [localizedPrices, setLocalizedPrices] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const { profile, loadProfile } = useAuthStore();
@@ -33,47 +36,49 @@ export default function GemsScreen() {
     try {
       const data = await api.get<{ products: GemProduct[] }>('/api/v1/gems/products');
       setProducts(data.products);
+
+      // Fetch localized prices from RevenueCat
+      try {
+        const productIds = data.products.map((p) => p.product_id);
+        const storeProducts = await Purchases.getProducts(productIds);
+        const priceMap: Record<string, string> = {};
+        for (const sp of storeProducts) {
+          priceMap[sp.identifier] = sp.priceString;
+        }
+        setLocalizedPrices(priceMap);
+      } catch {
+        // Fall back to USD prices from backend
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handlePurchase = async (product: GemProduct) => {
-    // In production, this would go through RevenueCat / StoreKit
-    // For now, show the intent
-    Alert.alert(
-      `Get ${product.gems} Gems`,
-      `$${product.price_usd} will be charged to your Apple ID.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Purchase',
-          onPress: async () => {
-            setPurchasing(product.product_id);
-            try {
-              // TODO: Replace with actual StoreKit purchase flow
-              const result = await api.post<{ gems: number; purchased: number }>(
-                '/api/v1/gems/purchase',
-                {
-                  product_id: product.product_id,
-                  transaction_id: `dev-${Date.now()}`,
-                  receipt: 'dev-receipt',
-                },
-              );
-              await loadProfile();
-              Alert.alert(
-                'Purchase complete!',
-                `You received ${result.purchased} gems. Balance: ${result.gems}`,
-              );
-            } catch (err: any) {
-              Alert.alert('Purchase failed', err.message);
-            } finally {
-              setPurchasing(null);
-            }
-          },
-        },
-      ],
-    );
+    setPurchasing(product.product_id);
+    try {
+      const result = await purchaseGems(product.product_id);
+      await loadProfile();
+      Alert.alert(
+        'Purchase complete!',
+        `You received ${result.purchased} gems. Balance: ${result.gems}`,
+      );
+    } catch (err: any) {
+      if (!isUserCancellation(err)) {
+        Alert.alert('Purchase failed', err.message);
+      }
+    } finally {
+      setPurchasing(null);
+    }
+  };
+
+  const handleRestore = async () => {
+    try {
+      await restorePurchases();
+      Alert.alert('Restore complete', 'Your purchases have been restored.');
+    } catch (err: any) {
+      Alert.alert('Restore failed', err.message);
+    }
   };
 
   const handleDailyClaim = async () => {
@@ -110,6 +115,14 @@ export default function GemsScreen() {
           <Text style={styles.balanceLabel}>gems remaining</Text>
         </View>
 
+        {/* Membership banner (shown only if user is already a member) */}
+        {profile?.is_member && (
+          <View style={styles.memberBadge}>
+            <Ionicons name="star" size={18} color={colors.primary} />
+            <Text style={styles.memberBadgeText}>Member — you get discounted gem prices</Text>
+          </View>
+        )}
+
         {/* Daily claim */}
         <TouchableOpacity style={styles.dailyCard} onPress={handleDailyClaim}>
           <Ionicons name="gift" size={24} color={colors.primary} />
@@ -142,16 +155,22 @@ export default function GemsScreen() {
                 </View>
               )}
               <Ionicons name="diamond" size={28} color={colors.gem} />
-              <Text style={styles.productGems}>{product.gems}</Text>
+              <Text style={styles.productGems}>{product.gems.toLocaleString()}</Text>
               <Text style={styles.productLabel}>{product.label}</Text>
               {purchasing === product.product_id ? (
                 <ActivityIndicator size="small" color={colors.primary} />
               ) : (
-                <Text style={styles.productPrice}>${product.price_usd}</Text>
+                <Text style={styles.productPrice}>
+                  {localizedPrices[product.product_id] || `$${product.price_usd}`}
+                </Text>
               )}
             </TouchableOpacity>
           ))}
         </View>
+
+        <TouchableOpacity style={styles.restoreButton} onPress={handleRestore}>
+          <Text style={styles.restoreText}>Restore Purchases</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -284,6 +303,31 @@ const styles = StyleSheet.create({
   productPrice: {
     ...typography.button,
     color: colors.primary,
-    marginTop: spacing.xs,
+    marginTop: 2,
+  },
+  memberBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primary + '10',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.primary + '30',
+  },
+  memberBadgeText: {
+    ...typography.bodySmall,
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  restoreButton: {
+    alignItems: 'center',
+    marginTop: spacing.xl,
+  },
+  restoreText: {
+    ...typography.bodySmall,
+    color: colors.textMuted,
+    textDecorationLine: 'underline',
   },
 });

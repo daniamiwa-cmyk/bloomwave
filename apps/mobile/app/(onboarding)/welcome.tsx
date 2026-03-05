@@ -12,7 +12,7 @@ export default function WelcomeScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.greeting}>Hi there.</Text>
-        <Text style={styles.name}>I'm Alora.</Text>
+        <Text style={styles.name}>I'm Amaia.</Text>
         <Text style={styles.description}>
           I'm a companion who pays attention.{'\n'}
           I remember what matters to you,{'\n'}
@@ -21,6 +21,10 @@ export default function WelcomeScreen() {
         <Text style={styles.subtext}>
           Let me learn a little about you{'\n'}
           so I can show up the way you need.
+        </Text>
+        <Text style={styles.disclosure}>
+          Amaia is an AI companion. Conversations are generated{'\n'}
+          by artificial intelligence, not a real person.
         </Text>
       </View>
 
@@ -49,12 +53,14 @@ const styles = StyleSheet.create({
   greeting: {
     ...typography.h1,
     fontSize: 36,
+    lineHeight: 44,
     color: colors.textSecondary,
     marginBottom: spacing.xs,
   },
   name: {
     ...typography.h1,
-    fontSize: 48,
+    fontSize: 38,
+    lineHeight: 46,
     color: colors.primary,
     marginBottom: spacing.xl,
   },
@@ -69,6 +75,12 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textSecondary,
     lineHeight: 24,
+  },
+  disclosure: {
+    ...typography.caption,
+    color: colors.textMuted,
+    lineHeight: 18,
+    marginTop: spacing.lg,
   },
   button: {
     backgroundColor: colors.primary,

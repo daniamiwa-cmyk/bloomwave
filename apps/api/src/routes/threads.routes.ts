@@ -1,24 +1,42 @@
 import { FastifyPluginAsync } from 'fastify';
 import { supabaseAdmin } from '../lib/supabase.js';
+import * as personaService from '../services/persona.service.js';
+import { AppError } from '../utils/errors.js';
 
 export const threadRoutes: FastifyPluginAsync = async (fastify) => {
-  // List all threads
+  // List all threads (with persona info)
   fastify.get('/', async (request) => {
-    const { data } = await supabaseAdmin
+    const { data: threads } = await supabaseAdmin
       .from('threads')
-      .select('*')
+      .select('*, personas(name, avatar_emoji, color)')
       .eq('user_id', request.userId)
       .eq('is_archived', false)
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
-    return { threads: data || [] };
+    // Flatten persona join into thread fields
+    const result = (threads || []).map((t: any) => ({
+      ...t,
+      persona_name: t.personas?.name || null,
+      persona_emoji: t.personas?.avatar_emoji || null,
+      personas: undefined,
+    }));
+
+    return { threads: result };
   });
 
-  // Create thread
+  // Create thread (with optional persona_id)
   fastify.post<{
-    Body: { title: string; description?: string; color?: string; icon?: string };
+    Body: { title: string; description?: string; color?: string; icon?: string; persona_id?: string };
   }>('/', async (request) => {
-    const { title, description, color, icon } = request.body;
+    const { title, description, color, icon, persona_id } = request.body;
+
+    // If persona_id provided, validate ownership (user must have unlocked it)
+    if (persona_id) {
+      const unlocked = await personaService.isUnlocked(request.userId, persona_id);
+      if (!unlocked) {
+        throw new AppError('Persona not unlocked', 403, 'PERSONA_NOT_UNLOCKED');
+      }
+    }
 
     const { data, error } = await supabaseAdmin
       .from('threads')
@@ -28,12 +46,22 @@ export const threadRoutes: FastifyPluginAsync = async (fastify) => {
         description: description || null,
         color: color || '#7C5CFC',
         icon: icon || 'chat',
+        persona_id: persona_id || null,
       })
-      .select()
+      .select('*, personas(name, avatar_emoji, color)')
       .single();
 
     if (error) throw error;
-    return data;
+
+    // Flatten persona join
+    const result = {
+      ...data,
+      persona_name: (data as any).personas?.name || null,
+      persona_emoji: (data as any).personas?.avatar_emoji || null,
+      personas: undefined,
+    };
+
+    return result;
   });
 
   // Update thread

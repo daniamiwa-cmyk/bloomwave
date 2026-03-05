@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   ready: {
     ...typography.h1,
     fontSize: 40,
+    lineHeight: 48,
     color: colors.primary,
     marginBottom: spacing.xl,
   },

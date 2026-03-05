@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../lib/supabase.js';
-import type { UserProfile, OnboardingPayload, ProfileUpdate } from '@alora/shared';
+import type { UserProfile, OnboardingPayload, ProfileUpdate } from '@amai/shared';
 import { NotFoundError } from '../utils/errors.js';
 
 export async function getProfile(userId: string): Promise<UserProfile> {

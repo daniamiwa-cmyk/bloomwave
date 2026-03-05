@@ -21,6 +21,7 @@ export interface GemProduct {
   product_id: string;
   gems: number;
   price_usd: number;
+  member_price_usd: number | null;
   label: string;
   is_popular: boolean;
 }

@@ -1,8 +1,10 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/theme/colors';
+import { useTheme } from '@/theme/ThemeProvider';
 
 export default function MainLayout() {
+  const colors = useTheme();
+
   return (
     <Tabs
       screenOptions={{
@@ -26,12 +28,18 @@ export default function MainLayout() {
         }}
       />
       <Tabs.Screen
+        name="personas"
+        options={{
+          title: 'Explore',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="compass" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="threads"
         options={{
-          title: 'Threads',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="layers" size={size} color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -44,11 +52,11 @@ export default function MainLayout() {
         }}
       />
       <Tabs.Screen
-        name="checkins"
+        name="gems"
         options={{
-          title: 'Check-ins',
+          title: 'Store',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="notifications-outline" size={size} color={color} />
+            <Ionicons name="diamond" size={size} color={color} />
           ),
         }}
       />
@@ -59,6 +67,12 @@ export default function MainLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings-sharp" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="checkins"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

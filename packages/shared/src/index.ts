@@ -7,6 +7,8 @@ export * from './types/memory';
 export * from './types/thread';
 export * from './types/checkin';
 export * from './types/gems';
+export * from './types/persona';
+export * from './types/personaRequest';
 
 // Constants
 export * from './constants/emotions';

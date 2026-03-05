@@ -46,9 +46,18 @@ export const checkinRoutes: FastifyPluginAsync = async (fastify) => {
     Params: { checkinId: string };
     Body: Record<string, unknown>;
   }>('/:checkinId', async (request) => {
+    const ALLOWED_FIELDS = [
+      'topic', 'prompt_template', 'context', 'thread_id',
+      'frequency', 'scheduled_at', 'cron_expression',
+      'timezone', 'send_push',
+    ];
+    const filtered = Object.fromEntries(
+      Object.entries(request.body).filter(([k]) => ALLOWED_FIELDS.includes(k)),
+    );
+
     const { data, error } = await supabaseAdmin
       .from('checkins')
-      .update(request.body)
+      .update(filtered)
       .eq('id', request.params.checkinId)
       .eq('user_id', request.userId)
       .select()

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { api } from '../services/api';
 import { supabase } from '../services/supabase';
-import type { Message, SendMessageResponse, MessageHistoryResponse, Thread } from '@alora/shared';
+import type { Message, SendMessageResponse, MessageHistoryResponse, Thread } from '@amai/shared';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -20,7 +20,8 @@ interface ChatState {
   loadMessages: (threadId: string, page?: number) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   sendMessageStreaming: (content: string) => Promise<void>;
-  createThread: (title: string, description?: string) => Promise<Thread>;
+  createThread: (title: string, description?: string, personaId?: string) => Promise<Thread>;
+  deleteThread: (threadId: string) => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -237,9 +238,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  createThread: async (title, description) => {
-    const thread = await api.post<Thread>('/api/v1/threads', { title, description });
+  createThread: async (title, description, personaId) => {
+    const thread = await api.post<Thread>('/api/v1/threads', {
+      title,
+      description,
+      persona_id: personaId || undefined,
+    });
     set((state) => ({ threads: [thread, ...state.threads] }));
     return thread;
+  },
+
+  deleteThread: async (threadId) => {
+    await api.delete(`/api/v1/threads/${threadId}`);
+    set((state) => ({
+      threads: state.threads.filter((t) => t.id !== threadId),
+      currentThreadId: state.currentThreadId === threadId ? null : state.currentThreadId,
+    }));
   },
 }));

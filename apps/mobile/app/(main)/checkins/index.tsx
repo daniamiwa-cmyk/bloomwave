@@ -15,7 +15,7 @@ import { api } from '@/services/api';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, radius } from '@/theme/spacing';
-import type { CheckIn } from '@alora/shared';
+import type { CheckIn } from '@amai/shared';
 
 export default function CheckInsScreen() {
   const [checkins, setCheckins] = useState<CheckIn[]>([]);

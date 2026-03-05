@@ -12,11 +12,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/services/api';
-import { RELATIONAL_PRESETS, FANTASY_PRESETS } from '@alora/shared';
-import type { BoundaryPreset, InteractionMode } from '@alora/shared';
+import { RELATIONAL_PRESETS, FANTASY_PRESETS } from '@amai/shared';
+import type { BoundaryPreset, InteractionMode } from '@amai/shared';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, radius } from '@/theme/spacing';
+
+function isAtLeast18(dob: string): boolean {
+  const [year, month, day] = dob.split('-').map(Number);
+  if (!year || !month || !day) return false;
+  const today = new Date();
+  const birthDate = new Date(year, month - 1, day);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age >= 18;
+}
 
 export default function ModeScreen() {
   const { profile, loadProfile } = useAuthStore();
@@ -32,6 +45,17 @@ export default function ModeScreen() {
   const presets = selectedMode === 'relational' ? RELATIONAL_PRESETS : FANTASY_PRESETS;
 
   const handleModeSwitch = (mode: InteractionMode) => {
+    if (mode === 'fantasy') {
+      const dob = profile?.extended_profile?.date_of_birth;
+      if (typeof dob !== 'string' || !isAtLeast18(dob)) {
+        Alert.alert(
+          'Age Requirement',
+          'Fantasy mode is only available to users who are 18 or older.',
+        );
+        return;
+      }
+    }
+
     if (mode === 'fantasy' && !profile?.fantasy_mode_consented_at) {
       Alert.alert(
         'Enable Fantasy Mode?',
@@ -42,7 +66,9 @@ export default function ModeScreen() {
             text: 'I understand, enable it',
             onPress: () => {
               setSelectedMode('fantasy');
-              setSelectedPreset('romantic_escalating');
+              if (!FANTASY_PRESETS.some((p) => p.id === selectedPreset)) {
+                setSelectedPreset('romantic_escalating');
+              }
             },
           },
         ],
@@ -53,7 +79,7 @@ export default function ModeScreen() {
       if (mode === 'relational' && selectedPreset === 'romantic_escalating') {
         setSelectedPreset('romantic_slow_burn');
       }
-      if (mode === 'fantasy') {
+      if (mode === 'fantasy' && !FANTASY_PRESETS.some((p) => p.id === selectedPreset)) {
         setSelectedPreset('romantic_escalating');
       }
     }
@@ -91,7 +117,7 @@ export default function ModeScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.intro}>
-          Choose how Alora shows up for you. You can change this anytime.
+          Choose how Amaia shows up for you. You can change this anytime.
         </Text>
 
         {/* Mode Toggle */}
@@ -124,7 +150,7 @@ export default function ModeScreen() {
           <View style={styles.infoBox}>
             <Text style={styles.infoTitle}>Relational Mode</Text>
             <Text style={styles.infoText}>
-              This is the default. Alora prioritizes emotional connection, vulnerability,
+              This is the default. Amaia prioritizes emotional connection, vulnerability,
               and being truly known. Flirtation and romance follow the boundary you set below.
               Explicit content requires switching to Fantasy mode.
             </Text>
@@ -135,9 +161,9 @@ export default function ModeScreen() {
           <View style={[styles.infoBox, { borderColor: '#E53935' + '40' }]}>
             <Text style={[styles.infoTitle, { color: '#E53935' }]}>Fantasy Mode</Text>
             <Text style={styles.infoText}>
-              Emotional intimacy remains the foundation. Alora can express desire and
+              Emotional intimacy remains the foundation. Amaia can express desire and
               physical affection when you lead there. Content stays sensual and relational
-              — never crude, violent, or involving minors. You set the pace; Alora follows.
+              — never crude, violent, or involving minors. You set the pace; Amaia follows.
             </Text>
           </View>
         )}

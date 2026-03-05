@@ -13,8 +13,8 @@ interface ChatResult {
   usage: { input_tokens: number; output_tokens: number };
 }
 
-const DEFAULT_MODEL = 'claude-sonnet-4-5-20241022';
-const HAIKU_MODEL = 'claude-haiku-4-5-20241022';
+const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
+const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 
 const MAX_RETRIES = 3;
 const RETRY_BASE_MS = 500;

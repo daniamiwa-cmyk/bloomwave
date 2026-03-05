@@ -10,6 +10,10 @@ export interface Thread {
   context_summary: string | null;
   last_message_at: string | null;
   message_count: number;
+  persona_id: string | null;
+  persona_name: string | null;
+  persona_emoji: string | null;
+  persona_slug: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -19,6 +23,7 @@ export interface CreateThreadRequest {
   description?: string;
   color?: string;
   icon?: string;
+  persona_id?: string;
 }
 
 export interface UpdateThreadRequest {
