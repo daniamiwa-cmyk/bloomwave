@@ -104,7 +104,7 @@ export const portraitMap: Record<string, any> = {
   tariq: require('../../assets/portraits/tariq.jpg'),
   tessa: require('../../assets/portraits/tessa.jpg'),
   theo: require('../../assets/portraits/theo.jpg'),
-  'tomás': require('../../assets/portraits/tomás.jpg'),
+  'tomás': require('../../assets/portraits/tomas.jpg'),
   valentina: require('../../assets/portraits/valentina.jpg'),
   valentino: require('../../assets/portraits/valentino.jpg'),
   vivian: require('../../assets/portraits/vivian.jpg'),
