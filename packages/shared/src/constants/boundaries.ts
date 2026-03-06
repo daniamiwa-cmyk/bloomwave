@@ -1,4 +1,4 @@
-import { BoundaryPresetInfo } from '../types/boundary.js';
+import { BoundaryPresetInfo } from '../types/boundary';
 
 // Relational mode presets (default)
 export const RELATIONAL_PRESETS: BoundaryPresetInfo[] = [

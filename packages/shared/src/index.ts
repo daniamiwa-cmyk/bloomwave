@@ -1,15 +1,15 @@
 // Types
-export * from './types/user.js';
-export * from './types/profile.js';
-export * from './types/boundary.js';
-export * from './types/message.js';
-export * from './types/memory.js';
-export * from './types/thread.js';
-export * from './types/checkin.js';
-export * from './types/gems.js';
-export * from './types/persona.js';
-export * from './types/personaRequest.js';
+export * from './types/user';
+export * from './types/profile';
+export * from './types/boundary';
+export * from './types/message';
+export * from './types/memory';
+export * from './types/thread';
+export * from './types/checkin';
+export * from './types/gems';
+export * from './types/persona';
+export * from './types/personaRequest';
 
 // Constants
-export * from './constants/emotions.js';
-export * from './constants/boundaries.js';
+export * from './constants/emotions';
+export * from './constants/boundaries';
