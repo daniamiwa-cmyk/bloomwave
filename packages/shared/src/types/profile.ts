@@ -1,4 +1,4 @@
-import { BoundaryPreset, InteractionMode } from './boundary';
+import { BoundaryPreset, InteractionMode } from './boundary.js';
 
 export interface ImportantPerson {
   name: string;
