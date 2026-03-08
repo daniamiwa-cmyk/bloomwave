@@ -13,6 +13,29 @@ export const chatRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(400).send({ error: 'message_id and thread_id are required' });
     }
 
+    // Verify the message belongs to a thread the user owns
+    const { data: message } = await supabaseAdmin
+      .from('messages')
+      .select('id, thread_id')
+      .eq('id', message_id)
+      .eq('thread_id', thread_id)
+      .single();
+
+    if (!message) {
+      return reply.code(404).send({ error: 'Message not found' });
+    }
+
+    const { data: thread } = await supabaseAdmin
+      .from('threads')
+      .select('id')
+      .eq('id', thread_id)
+      .eq('user_id', request.userId)
+      .single();
+
+    if (!thread) {
+      return reply.code(404).send({ error: 'Thread not found' });
+    }
+
     await supabaseAdmin.from('content_reports').insert({
       user_id: request.userId,
       message_id,
@@ -33,6 +56,10 @@ export const chatRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(400).send({ error: 'thread_id and content are required' });
     }
 
+    if (content.length > 4000) {
+      return reply.code(400).send({ error: 'Message too long (max 4000 characters)' });
+    }
+
     const result = await chatService.sendMessage(request.userId, thread_id, content.trim());
     return result;
   });
@@ -45,6 +72,10 @@ export const chatRoutes: FastifyPluginAsync = async (fastify) => {
 
     if (!thread_id || !content?.trim()) {
       return reply.code(400).send({ error: 'thread_id and content are required' });
+    }
+
+    if (content.length > 4000) {
+      return reply.code(400).send({ error: 'Message too long (max 4000 characters)' });
     }
 
     await chatService.sendMessageStreaming(request.userId, thread_id, content.trim(), reply);

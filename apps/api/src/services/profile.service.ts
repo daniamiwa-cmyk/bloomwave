@@ -57,11 +57,28 @@ export async function completeOnboarding(
   return data as UserProfile;
 }
 
+const ALLOWED_MERGE_FIELDS = new Set([
+  'display_name',
+  'pronouns',
+  'important_people',
+  'what_calms',
+  'what_triggers',
+  'core_values',
+  'preferred_tone',
+  'humor_style',
+  'comfort_style',
+  'extended_profile',
+]);
+
 export async function mergeProfileUpdate(
   userId: string,
   field: string,
   value: unknown,
 ): Promise<void> {
+  if (!ALLOWED_MERGE_FIELDS.has(field)) {
+    return; // Silently ignore disallowed fields (e.g. gems, is_member)
+  }
+
   const profile = await getProfile(userId);
 
   // For array fields, merge without duplicates

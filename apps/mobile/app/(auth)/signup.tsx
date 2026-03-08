@@ -44,6 +44,10 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     if (!email.trim() || !password) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -167,11 +171,11 @@ export default function SignupScreen() {
 
           <Text style={styles.termsText}>
             By creating an account, you agree to our{' '}
-            <Text style={styles.termsLink} onPress={() => Linking.openURL('https://amaia.app/terms')}>
+            <Text style={styles.termsLink} onPress={() => Linking.openURL('https://docs.google.com/document/d/1SiR-1JiE11SpT1VzezFJbWFE_2yAKI5x-xvVtOmzQgw/edit?usp=sharing')}>
               Terms of Service
             </Text>
             {' '}and{' '}
-            <Text style={styles.termsLink} onPress={() => Linking.openURL('https://amaia.app/privacy')}>
+            <Text style={styles.termsLink} onPress={() => Linking.openURL('https://docs.google.com/document/d/1SiR-1JiE11SpT1VzezFJbWFE_2yAKI5x-xvVtOmzQgw/edit?usp=sharing')}>
               Privacy Policy
             </Text>
           </Text>

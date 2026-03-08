@@ -1,6 +1,12 @@
 import { supabaseAdmin } from '../lib/supabase.js';
 import { extractWithHaiku } from './claude.service.js';
 
+function sanitizeForPrompt(text: string, maxLen = 4000): string {
+  return text
+    .slice(0, maxLen)
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+}
+
 export async function generateThreadSummary(threadId: string): Promise<void> {
   // Get the thread info
   const { data: thread } = await supabaseAdmin
@@ -23,7 +29,7 @@ export async function generateThreadSummary(threadId: string): Promise<void> {
 
   const conversation = messages
     .reverse()
-    .map((m) => `${m.role === 'user' ? 'User' : 'Amaia'}: ${m.content}`)
+    .map((m) => `${m.role === 'user' ? 'User' : 'Amaia'}: ${sanitizeForPrompt(m.content, 500)}`)
     .join('\n');
 
   const prompt = `Summarize this conversation thread for an AI companion's context.

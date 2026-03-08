@@ -8,7 +8,7 @@ export const threadRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request) => {
     const { data: threads } = await supabaseAdmin
       .from('threads')
-      .select('*, personas(name, avatar_emoji, color)')
+      .select('*, personas(name, avatar_emoji, color, slug)')
       .eq('user_id', request.userId)
       .eq('is_archived', false)
       .order('last_message_at', { ascending: false, nullsFirst: false });
@@ -18,6 +18,8 @@ export const threadRoutes: FastifyPluginAsync = async (fastify) => {
       ...t,
       persona_name: t.personas?.name || null,
       persona_emoji: t.personas?.avatar_emoji || null,
+      persona_slug: t.personas?.slug || null,
+      persona_color: t.personas?.color || null,
       personas: undefined,
     }));
 
@@ -48,7 +50,7 @@ export const threadRoutes: FastifyPluginAsync = async (fastify) => {
         icon: icon || 'chat',
         persona_id: persona_id || null,
       })
-      .select('*, personas(name, avatar_emoji, color)')
+      .select('*, personas(name, avatar_emoji, color, slug)')
       .single();
 
     if (error) throw error;
@@ -58,6 +60,8 @@ export const threadRoutes: FastifyPluginAsync = async (fastify) => {
       ...data,
       persona_name: (data as any).personas?.name || null,
       persona_emoji: (data as any).personas?.avatar_emoji || null,
+      persona_slug: (data as any).personas?.slug || null,
+      persona_color: (data as any).personas?.color || null,
       personas: undefined,
     };
 

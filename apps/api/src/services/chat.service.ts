@@ -10,6 +10,7 @@ import * as gemsService from './gems.service.js';
 import * as streamService from './stream.service.js';
 import * as threadSummary from './thread-summary.service.js';
 import * as personaService from './persona.service.js';
+import { NotFoundError } from '../utils/errors.js';
 import type { Message, SendMessageResponse, Persona } from '@amai/shared';
 import { GEM_COST_PER_MESSAGE } from '@amai/shared';
 
@@ -125,7 +126,7 @@ export async function getMessageHistory(
     .single();
 
   if (!thread) {
-    throw new Error('Thread not found');
+    throw new NotFoundError('Thread');
   }
 
   const offset = page * limit;

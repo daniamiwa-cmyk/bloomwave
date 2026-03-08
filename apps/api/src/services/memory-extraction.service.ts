@@ -1,22 +1,33 @@
 import { extractWithHaiku } from './claude.service.js';
 import type { MemoryCandidate, UserProfile } from '@amai/shared';
 
+const MAX_EXTRACT_INPUT = 4000;
+
+function sanitizeForPrompt(text: string): string {
+  return text
+    .slice(0, MAX_EXTRACT_INPUT)
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, ''); // strip control chars except \n \r \t
+}
+
 export async function extractMemories(
   userMessage: string,
   aiResponse: string,
   profile: UserProfile,
 ): Promise<MemoryCandidate[]> {
+  const safeUserMsg = sanitizeForPrompt(userMessage);
+  const safeAiResp = sanitizeForPrompt(aiResponse);
+
   const prompt = `Analyze this conversation exchange and extract any memories worth saving.
 
 CURRENT USER PROFILE (do not re-extract known facts):
-- Name: ${profile.display_name || 'Unknown'}
-- Known people: ${profile.important_people?.map((p) => p.name).join(', ') || 'None yet'}
-- Known calms: ${profile.what_calms?.join(', ') || 'None yet'}
-- Known triggers: ${profile.what_triggers?.join(', ') || 'None yet'}
+- Name: ${sanitizeForPrompt(profile.display_name || 'Unknown')}
+- Known people: ${profile.important_people?.map((p) => sanitizeForPrompt(p.name)).join(', ') || 'None yet'}
+- Known calms: ${profile.what_calms?.map((c) => sanitizeForPrompt(c)).join(', ') || 'None yet'}
+- Known triggers: ${profile.what_triggers?.map((t) => sanitizeForPrompt(t)).join(', ') || 'None yet'}
 
 CONVERSATION EXCHANGE:
-User: ${userMessage}
-Assistant: ${aiResponse}
+User: ${safeUserMsg}
+Assistant: ${safeAiResp}
 
 Extract memories in these categories:
 1. EPISODIC: Specific events, experiences, emotions shared

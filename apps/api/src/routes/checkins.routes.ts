@@ -27,12 +27,26 @@ export const checkinRoutes: FastifyPluginAsync = async (fastify) => {
       timezone?: string;
       send_push?: boolean;
     };
-  }>('/', async (request) => {
+  }>('/', async (request, reply) => {
+    const { topic, frequency, scheduled_at } = request.body;
+    if (!topic || !frequency || !scheduled_at) {
+      return reply.code(400).send({ error: 'topic, frequency, and scheduled_at are required' });
+    }
+
+    const ALLOWED_FIELDS = [
+      'topic', 'prompt_template', 'context', 'thread_id',
+      'frequency', 'scheduled_at', 'cron_expression',
+      'timezone', 'send_push',
+    ];
+    const filtered = Object.fromEntries(
+      Object.entries(request.body).filter(([k]) => ALLOWED_FIELDS.includes(k)),
+    );
+
     const { data, error } = await supabaseAdmin
       .from('checkins')
       .insert({
         user_id: request.userId,
-        ...request.body,
+        ...filtered,
       })
       .select()
       .single();

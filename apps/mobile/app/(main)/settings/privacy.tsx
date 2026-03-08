@@ -2,8 +2,6 @@ import { View, Text, StyleSheet, ScrollView, Linking, TouchableOpacity } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuthStore } from '@/stores/authStore';
-import { api } from '@/services/api';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing, radius } from '@/theme/spacing';
@@ -27,7 +25,6 @@ function Bullet({ text }: { text: string }) {
 }
 
 export default function PrivacyScreen() {
-  const { profile } = useAuthStore();
   const router = useRouter();
 
   return (
@@ -42,93 +39,46 @@ export default function PrivacyScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.intro}>
-          Your privacy is fundamental to Amaia. Here's exactly what we store, where,
-          and what you can do about it.
+          Privacy Policy — Amaia Chat App{'\n'}
+          Last updated: February 20, 2026
         </Text>
 
-        <Section title="What data Amaia stores">
-          <Bullet text="Your name, pronouns, and preferences (what you set during onboarding)" />
-          <Bullet text="Your messages and Amaia's responses" />
-          <Bullet text="Memories extracted from conversations (summaries, not raw messages)" />
-          <Bullet text="Thread names and descriptions you create" />
-          <Bullet text="Check-in schedules" />
-          <Bullet text="Your date of birth (for age-gated features only — never shared)" />
-          <Bullet text="Your email address (for sign-in only)" />
-          <Bullet text="Purchase history (managed by Apple, verified via RevenueCat)" />
+        <Section title="Data We Collect">
+          <Bullet text="Email address (for account creation)" />
         </Section>
 
-        <Section title="Where it's stored">
-          <Bullet text="All data is stored in Supabase (encrypted at rest and in transit)" />
-          <Bullet text="Your messages are sent to Anthropic's Claude API for responses — they do NOT store or train on API data" />
-          <Bullet text="Memory embeddings (mathematical representations) are stored for search — they cannot be reversed into your original text" />
-          <Bullet text="No data is shared with advertisers or third parties" />
+        <Section title="How We Use Your Data">
+          <Bullet text="To provide and sync your journal and coaching sessions across devices" />
+          <Bullet text="We do not sell your data to third parties" />
         </Section>
 
-        <Section title="What Amaia does NOT do">
-          <Bullet text="No tracking or analytics" />
-          <Bullet text="No advertising SDKs" />
-          <Bullet text="No selling or sharing your data" />
-          <Bullet text="No training AI models on your conversations" />
-          <Bullet text="No reading your contacts, photos, or other apps" />
+        <Section title="Third Party Services">
+          <Bullet text="Supabase (data storage and authentication)" />
+          <Bullet text="RevenueCat (subscription management)" />
+          <Bullet text="Anthropic (AI coaching responses)" />
         </Section>
 
-        <Section title="Your controls">
+        <Section title="Data Deletion">
           <View style={styles.controlCard}>
-            <Ionicons name="eye-outline" size={20} color={colors.primary} />
-            <View style={styles.controlInfo}>
-              <Text style={styles.controlTitle}>View all memories</Text>
-              <Text style={styles.controlDesc}>See everything Amaia remembers in the Memories tab</Text>
-            </View>
-          </View>
-
-          <View style={styles.controlCard}>
-            <Ionicons name="create-outline" size={20} color={colors.primary} />
-            <View style={styles.controlInfo}>
-              <Text style={styles.controlTitle}>Edit any memory</Text>
-              <Text style={styles.controlDesc}>Correct or update what Amaia remembers</Text>
-            </View>
-          </View>
-
-          <View style={styles.controlCard}>
-            <Ionicons name="trash-outline" size={20} color={colors.primary} />
-            <View style={styles.controlInfo}>
-              <Text style={styles.controlTitle}>Delete memories</Text>
-              <Text style={styles.controlDesc}>Remove individual memories or delete them all</Text>
-            </View>
-          </View>
-
-          <View style={styles.controlCard}>
-            <Ionicons
-              name={profile?.memory_paused ? 'play-outline' : 'pause-outline'}
-              size={20}
-              color={profile?.memory_paused ? colors.warning : colors.primary}
-            />
-            <View style={styles.controlInfo}>
-              <Text style={styles.controlTitle}>
-                Memory is {profile?.memory_paused ? 'paused' : 'active'}
-              </Text>
-              <Text style={styles.controlDesc}>
-                {profile?.memory_paused
-                  ? 'Amaia is not saving new memories right now'
-                  : 'Amaia saves meaningful moments from your conversations'}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.controlCard}>
-            <Ionicons name="person-remove-outline" size={20} color={colors.error} />
+            <Ionicons name="trash-outline" size={20} color={colors.error} />
             <View style={styles.controlInfo}>
               <Text style={styles.controlTitle}>Delete your account</Text>
               <Text style={styles.controlDesc}>
-                Permanently removes ALL data — messages, memories, everything. Available in Settings.
+                Hit the delete button in Settings, or contact us at chibijumpstore@gmail.com
               </Text>
             </View>
           </View>
+        </Section>
+
+        <Section title="Contact">
+          <TouchableOpacity onPress={() => Linking.openURL('mailto:chibijumpstore@gmail.com')}>
+            <Text style={[styles.bulletText, { color: colors.primary }]}>chibijumpstore@gmail.com</Text>
+          </TouchableOpacity>
         </Section>
 
         <TouchableOpacity
           style={styles.policyLink}
-          onPress={() => Linking.openURL('https://amaia.app/privacy')}
+          onPress={() => Linking.openURL('https://docs.google.com/document/d/1SiR-1JiE11SpT1VzezFJbWFE_2yAKI5x-xvVtOmzQgw/edit?usp=sharing')}
         >
           <Text style={styles.policyLinkText}>Read full privacy policy</Text>
           <Ionicons name="open-outline" size={14} color={colors.primary} />
@@ -136,7 +86,7 @@ export default function PrivacyScreen() {
 
         <TouchableOpacity
           style={styles.policyLink}
-          onPress={() => Linking.openURL('https://amaia.app/terms')}
+          onPress={() => Linking.openURL('https://docs.google.com/document/d/1SiR-1JiE11SpT1VzezFJbWFE_2yAKI5x-xvVtOmzQgw/edit?usp=sharing')}
         >
           <Text style={styles.policyLinkText}>Terms of Service</Text>
           <Ionicons name="open-outline" size={14} color={colors.primary} />

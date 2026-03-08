@@ -90,11 +90,18 @@ export async function unlockPersona(
       `Unlock persona: ${persona.name}`,
     );
 
-    await supabaseAdmin.from('user_persona_unlocks').insert({
+    // Insert unlock record; if this fails, refund the gems
+    const { error: unlockError } = await supabaseAdmin.from('user_persona_unlocks').insert({
       user_id: userId,
       persona_id: personaId,
       unlock_method: 'gems',
     });
+
+    if (unlockError) {
+      // Refund gems since unlock failed
+      await gemsService.addGems(userId, gemsNeeded, 'refund', `Refund: failed unlock for ${persona.name}`);
+      throw new AppError('Failed to unlock persona', 500, 'UNLOCK_FAILED');
+    }
 
     return {
       success: true,

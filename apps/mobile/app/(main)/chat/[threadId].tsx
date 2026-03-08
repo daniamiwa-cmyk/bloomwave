@@ -203,10 +203,10 @@ export default function ChatScreen() {
             {currentThread?.persona_name || (currentThread?.is_default ? 'Amaia' : currentThread?.title || 'Chat')}
           </Text>
         </View>
-        <View style={styles.gemsDisplay}>
-          <Text style={styles.gemsText}>{profile?.gems ?? gemsRemaining}</Text>
+        <TouchableOpacity style={styles.gemsDisplay} onPress={() => router.push('/(main)/gems/')}>
+          <Text style={styles.gemsText}>{profile?.gems ?? gemsRemaining ?? 0}</Text>
           <Ionicons name="diamond" size={14} color={staticColors.gem} />
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Error banner */}

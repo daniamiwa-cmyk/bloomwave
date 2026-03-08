@@ -54,9 +54,9 @@ export default function MainLayout() {
       <Tabs.Screen
         name="gems"
         options={{
-          title: 'Store',
+          title: 'Gems',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="diamond" size={size} color={color} />
+            <Ionicons name="sparkles" size={size} color={color} />
           ),
         }}
       />

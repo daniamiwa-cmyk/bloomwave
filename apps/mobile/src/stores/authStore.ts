@@ -35,8 +35,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isAuthenticated: true,
         isLoading: false,
       });
-      get().loadProfile();
-      configurePurchases(data.session.user.id);
+      Promise.all([
+        get().loadProfile(),
+        configurePurchases(data.session.user.id),
+      ]).catch((err) => console.error('[auth] Background init error:', err));
     } else {
       set({ isLoading: false });
     }
@@ -48,8 +50,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           email: session.user.email || null,
           isAuthenticated: true,
         });
-        get().loadProfile();
-        configurePurchases(session.user.id);
+        Promise.all([
+          get().loadProfile(),
+          configurePurchases(session.user.id),
+        ]).catch((err) => console.error('[auth] Background init error:', err));
       } else {
         set({ userId: null, email: null, profile: null, isAuthenticated: false });
       }

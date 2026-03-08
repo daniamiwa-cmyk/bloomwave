@@ -22,6 +22,28 @@ export const profileRoutes: FastifyPluginAsync = async (fastify) => {
     const filtered = Object.fromEntries(
       Object.entries(request.body).filter(([k]) => ALLOWED_FIELDS.includes(k)),
     );
+
+    // Server-side age gate: verify 18+ before allowing fantasy mode
+    if (filtered.interaction_mode === 'fantasy') {
+      const profile = await profileService.getProfile(request.userId);
+      const dob = profile?.extended_profile?.date_of_birth;
+      if (!dob || typeof dob !== 'string') {
+        return request.server.httpErrors.forbidden('Date of birth required for fantasy mode');
+      }
+      const [year, month, day] = dob.split('-').map(Number);
+      if (!year || !month || !day) {
+        return request.server.httpErrors.forbidden('Invalid date of birth');
+      }
+      const today = new Date();
+      const birthDate = new Date(year, month - 1, day);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+      if (age < 18) {
+        return request.server.httpErrors.forbidden('Must be 18 or older for fantasy mode');
+      }
+    }
+
     return profileService.updateProfile(request.userId, filtered as any);
   });
 

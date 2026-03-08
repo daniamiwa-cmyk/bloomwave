@@ -82,8 +82,12 @@ export default function SettingsScreen() {
                   text: 'Delete permanently',
                   style: 'destructive',
                   onPress: async () => {
-                    await api.delete('/api/v1/profile/account');
-                    signOut();
+                    try {
+                      await api.delete('/api/v1/profile/account');
+                      signOut();
+                    } catch (err: any) {
+                      Alert.alert('Error', err.message || 'Could not delete account. Please try again.');
+                    }
                   },
                 },
               ],

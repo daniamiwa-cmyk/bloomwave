@@ -43,18 +43,29 @@ async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
 
 export async function chat(options: ChatOptions): Promise<ChatResult> {
   return withRetry(async () => {
-    const response = await anthropic.messages.create({
-      model: options.model || DEFAULT_MODEL,
-      max_tokens: options.maxTokens || 1024,
-      system: [
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 45000);
+
+    let response;
+    try {
+      response = await anthropic.messages.create(
         {
-          type: 'text',
-          text: options.systemPrompt,
-          cache_control: { type: 'ephemeral' },
+          model: options.model || DEFAULT_MODEL,
+          max_tokens: options.maxTokens || 1024,
+          system: [
+            {
+              type: 'text',
+              text: options.systemPrompt,
+              cache_control: { type: 'ephemeral' },
+            },
+          ],
+          messages: options.messages,
         },
-      ],
-      messages: options.messages,
-    });
+        { signal: controller.signal },
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const textBlock = response.content.find((b) => b.type === 'text');
 

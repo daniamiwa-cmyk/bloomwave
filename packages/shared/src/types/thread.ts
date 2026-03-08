@@ -14,6 +14,7 @@ export interface Thread {
   persona_name: string | null;
   persona_emoji: string | null;
   persona_slug: string | null;
+  persona_color: string | null;
   created_at: string;
   updated_at: string;
 }

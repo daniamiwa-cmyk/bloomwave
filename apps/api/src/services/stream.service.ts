@@ -42,10 +42,15 @@ export async function streamChat(
       messages: options.messages,
     });
 
+    // Abort the Anthropic stream if the client disconnects (saves tokens)
+    reply.raw.on('close', () => stream.abort());
+
     stream.on('text', (text) => {
       fullText += text;
       // Send each token as an SSE event
-      reply.raw.write(`data: ${JSON.stringify({ type: 'token', text })}\n\n`);
+      if (!reply.raw.destroyed) {
+        reply.raw.write(`data: ${JSON.stringify({ type: 'token', text })}\n\n`);
+      }
       options.onToken?.(text);
     });
 
@@ -53,20 +58,26 @@ export async function streamChat(
     usage = finalMessage.usage;
 
     // Send completion event
-    reply.raw.write(
-      `data: ${JSON.stringify({
-        type: 'done',
-        full_text: fullText,
-        usage,
-      })}\n\n`,
-    );
+    if (!reply.raw.destroyed) {
+      reply.raw.write(
+        `data: ${JSON.stringify({
+          type: 'done',
+          full_text: fullText,
+          usage,
+        })}\n\n`,
+      );
+    }
 
     options.onDone?.(fullText, usage);
   } catch (err: any) {
-    reply.raw.write(
-      `data: ${JSON.stringify({ type: 'error', message: err.message })}\n\n`,
-    );
+    if (!reply.raw.destroyed) {
+      reply.raw.write(
+        `data: ${JSON.stringify({ type: 'error', message: err.message })}\n\n`,
+      );
+    }
   } finally {
-    reply.raw.end();
+    if (!reply.raw.destroyed) {
+      reply.raw.end();
+    }
   }
 }

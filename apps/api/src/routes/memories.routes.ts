@@ -12,8 +12,8 @@ export const memoryRoutes: FastifyPluginAsync = async (fastify) => {
       emotion?: string;
     };
   }>('/', async (request) => {
-    const page = parseInt(request.query.page || '0');
-    const limit = Math.min(parseInt(request.query.limit || '20'), 50);
+    const page = Math.max(0, parseInt(request.query.page || '0') || 0);
+    const limit = Math.min(parseInt(request.query.limit || '20') || 20, 50);
     const offset = page * limit;
 
     let query = supabaseAdmin
@@ -62,9 +62,17 @@ export const memoryRoutes: FastifyPluginAsync = async (fastify) => {
     Params: { memoryId: string };
     Body: { content: string };
   }>('/:memoryId', async (request, reply) => {
+    const content = request.body.content;
+    if (!content || typeof content !== 'string' || content.trim().length === 0) {
+      return reply.code(400).send({ error: 'Content is required' });
+    }
+    if (content.length > 2000) {
+      return reply.code(400).send({ error: 'Content too long (max 2000 characters)' });
+    }
+
     const { data, error } = await supabaseAdmin
       .from('memories')
-      .update({ content: request.body.content, user_edited: true })
+      .update({ content: content.trim(), user_edited: true })
       .eq('id', request.params.memoryId)
       .eq('user_id', request.userId)
       .select()

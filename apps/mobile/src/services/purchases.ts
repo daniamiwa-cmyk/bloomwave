@@ -5,6 +5,10 @@ import { api } from './api';
 const API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? '';
 
 export async function configurePurchases(userId: string) {
+  if (!API_KEY) {
+    if (__DEV__) console.warn('[purchases] EXPO_PUBLIC_REVENUECAT_API_KEY is empty, skipping configure');
+    return;
+  }
   Purchases.configure({
     apiKey: API_KEY,
     appUserID: userId,
@@ -33,6 +37,10 @@ export async function purchaseGems(
       .filter((t) => t.productIdentifier === productId)
       .sort((a, b) => b.purchaseDate.localeCompare(a.purchaseDate));
     transactionId = matching[0]?.transactionIdentifier ?? '';
+  }
+
+  if (!transactionId) {
+    throw new Error('Could not determine transaction ID for this purchase');
   }
 
   if (__DEV__) {

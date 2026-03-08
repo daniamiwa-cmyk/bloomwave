@@ -47,10 +47,10 @@ export default function ModeScreen() {
   const handleModeSwitch = (mode: InteractionMode) => {
     if (mode === 'fantasy') {
       const dob = profile?.extended_profile?.date_of_birth;
-      if (typeof dob !== 'string' || !isAtLeast18(dob)) {
+      if (!dob || typeof dob !== 'string' || !isAtLeast18(dob)) {
         Alert.alert(
           'Age Requirement',
-          'Fantasy mode is only available to users who are 18 or older.',
+          'Fantasy mode is only available to users who are 18 or older. Please set your date of birth in your profile.',
         );
         return;
       }

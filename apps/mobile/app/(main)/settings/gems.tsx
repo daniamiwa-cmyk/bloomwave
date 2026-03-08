@@ -25,6 +25,7 @@ export default function GemsScreen() {
   const [localizedPrices, setLocalizedPrices] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
+  const [claiming, setClaiming] = useState(false);
   const { profile, loadProfile } = useAuthStore();
   const router = useRouter();
 
@@ -82,6 +83,8 @@ export default function GemsScreen() {
   };
 
   const handleDailyClaim = async () => {
+    if (claiming) return;
+    setClaiming(true);
     try {
       const result = await api.post<{ claimed: boolean; balance: number }>(
         '/api/v1/gems/daily',
@@ -94,6 +97,8 @@ export default function GemsScreen() {
       }
     } catch (err: any) {
       Alert.alert('Error', err.message);
+    } finally {
+      setClaiming(false);
     }
   };
 
@@ -124,13 +129,17 @@ export default function GemsScreen() {
         )}
 
         {/* Daily claim */}
-        <TouchableOpacity style={styles.dailyCard} onPress={handleDailyClaim}>
+        <TouchableOpacity style={[styles.dailyCard, claiming && { opacity: 0.6 }]} onPress={handleDailyClaim} disabled={claiming}>
           <Ionicons name="gift" size={24} color={colors.primary} />
           <View style={styles.dailyInfo}>
             <Text style={styles.dailyTitle}>Daily free gems</Text>
             <Text style={styles.dailyDesc}>Claim 10 gems every day</Text>
           </View>
-          <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          {claiming ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          )}
         </TouchableOpacity>
 
         {/* How gems work */}

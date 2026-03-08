@@ -32,7 +32,27 @@ export const webhookRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(200).send({ ok: true });
     }
 
-    if (eventType === 'NON_RENEWING_PURCHASE' || eventType === 'INITIAL_PURCHASE') {
+    // Subscription events — manage membership
+    const subProducts = ['monthly', 'yearly', 'lifetime'];
+    const isSubscriptionProduct = subProducts.includes(productId);
+
+    if (
+      (eventType === 'INITIAL_PURCHASE' || eventType === 'RENEWAL') &&
+      isSubscriptionProduct
+    ) {
+      await supabaseAdmin
+        .from('user_profiles')
+        .update({ is_member: true, membership_type: productId })
+        .eq('user_id', appUserId);
+
+      return reply.code(200).send({ ok: true, status: 'member_activated' });
+    }
+
+    // Gem consumable purchases (NON_RENEWING_PURCHASE only, or INITIAL_PURCHASE for non-subscription products)
+    if (
+      eventType === 'NON_RENEWING_PURCHASE' ||
+      (eventType === 'INITIAL_PURCHASE' && !isSubscriptionProduct)
+    ) {
       // Check idempotency
       const alreadyProcessed = await gemsService.checkTransactionProcessed(transactionId);
       if (alreadyProcessed) {
@@ -86,24 +106,6 @@ export const webhookRoutes: FastifyPluginAsync = async (fastify) => {
       );
 
       return reply.code(200).send({ ok: true, status: 'refunded' });
-    }
-
-    // Subscription events — manage membership
-    if (
-      eventType === 'RENEWAL' ||
-      eventType === 'INITIAL_PURCHASE' ||
-      eventType === 'NON_RENEWING_PURCHASE'
-    ) {
-      // Check if this is a subscription product (not a gem consumable)
-      const subProducts = ['monthly', 'yearly', 'lifetime'];
-      if (subProducts.includes(productId)) {
-        await supabaseAdmin
-          .from('user_profiles')
-          .update({ is_member: true, membership_type: productId })
-          .eq('user_id', appUserId);
-
-        return reply.code(200).send({ ok: true, status: 'member_activated' });
-      }
     }
 
     if (eventType === 'EXPIRATION') {

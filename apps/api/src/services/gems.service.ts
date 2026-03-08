@@ -1,6 +1,8 @@
 import { supabaseAdmin } from '../lib/supabase.js';
 import { InsufficientGemsError } from '../utils/errors.js';
-import { GEM_COST_PER_MESSAGE, FREE_DAILY_GEMS } from '@amai/shared';
+// Inlined from @amai/shared — ESM/CJS interop prevents named imports of constants
+const GEM_COST_PER_MESSAGE = 1;
+const FREE_DAILY_GEMS = 10;
 import { env } from '../config/env.js';
 
 export async function getBalance(userId: string): Promise<number> {
@@ -53,13 +55,17 @@ export async function addGems(
   iapProductId?: string,
   iapTransactionId?: string,
 ): Promise<number> {
-  const balance = await getBalance(userId);
-  const newBalance = balance + amount;
+  // Atomic increment to prevent race conditions with concurrent purchases
+  const { data, error } = await supabaseAdmin.rpc('add_gems', {
+    p_user_id: userId,
+    p_amount: amount,
+  });
 
-  await supabaseAdmin
-    .from('user_profiles')
-    .update({ gems: newBalance })
-    .eq('user_id', userId);
+  if (error || data === null) {
+    throw error || new Error('Failed to add gems');
+  }
+
+  const newBalance = data as number;
 
   await supabaseAdmin.from('gem_transactions').insert({
     user_id: userId,
@@ -86,15 +92,21 @@ export async function claimDailyGems(userId: string): Promise<{ claimed: boolean
   const now = new Date();
   const hoursSinceLastClaim = (now.getTime() - lastClaim.getTime()) / 3600000;
 
-  if (hoursSinceLastClaim < 20) {
+  if (hoursSinceLastClaim < 24) {
     return { claimed: false, balance: data.gems };
   }
 
-  const newBalance = data.gems + FREE_DAILY_GEMS;
+  // Atomic increment for daily gems
+  const { data: newBalance, error: rpcError } = await supabaseAdmin.rpc('add_gems', {
+    p_user_id: userId,
+    p_amount: FREE_DAILY_GEMS,
+  });
+
+  if (rpcError) throw rpcError;
 
   await supabaseAdmin
     .from('user_profiles')
-    .update({ gems: newBalance, last_free_gems_at: now.toISOString() })
+    .update({ last_free_gems_at: now.toISOString() })
     .eq('user_id', userId);
 
   await supabaseAdmin.from('gem_transactions').insert({
@@ -104,7 +116,7 @@ export async function claimDailyGems(userId: string): Promise<{ claimed: boolean
     description: 'Daily free gems',
   });
 
-  return { claimed: true, balance: newBalance };
+  return { claimed: true, balance: newBalance as number };
 }
 
 export async function spendForMessage(userId: string): Promise<number> {
@@ -117,6 +129,9 @@ export async function verifyRevenueCatTransaction(
   productId: string,
 ): Promise<boolean> {
   if (!env.REVENUECAT_SECRET_KEY) {
+    if (env.NODE_ENV === 'production') {
+      throw new Error('REVENUECAT_SECRET_KEY is required in production');
+    }
     // In dev without a key, skip verification
     return true;
   }

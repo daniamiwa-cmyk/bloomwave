@@ -62,8 +62,12 @@ export default function MemoriesScreen() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await api.delete(`/api/v1/memories/${memory.id}`);
-          setMemories((prev) => prev.filter((m) => m.id !== memory.id));
+          try {
+            await api.delete(`/api/v1/memories/${memory.id}`);
+            setMemories((prev) => prev.filter((m) => m.id !== memory.id));
+          } catch (err: any) {
+            Alert.alert('Error', err.message || 'Could not delete memory');
+          }
         },
       },
     ]);

@@ -10,6 +10,7 @@ import { spacing, radius } from '@/theme/spacing';
 
 export default function CompleteScreen() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { loadProfile } = useAuthStore();
   const params = useLocalSearchParams<{
@@ -41,9 +42,11 @@ export default function CompleteScreen() {
       });
 
       await loadProfile();
+      // Navigate after profile is loaded to avoid race condition
       router.replace('/(main)/chat/');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Onboarding failed:', err);
+      setError(err.message || 'Something went wrong. Please try again.');
       setLoading(false);
     }
   };
@@ -62,6 +65,8 @@ export default function CompleteScreen() {
           delete anything I remember — anytime.
         </Text>
       </View>
+
+      {error && <Text style={styles.errorText}>{error}</Text>}
 
       <TouchableOpacity
         style={[styles.button, loading && styles.buttonDisabled]}
@@ -108,6 +113,12 @@ const styles = StyleSheet.create({
     ...typography.bodySmall,
     color: colors.textSecondary,
     lineHeight: 22,
+  },
+  errorText: {
+    ...typography.bodySmall,
+    color: colors.error,
+    textAlign: 'center',
+    marginBottom: spacing.md,
   },
   button: {
     backgroundColor: colors.primary,

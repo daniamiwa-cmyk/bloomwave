@@ -59,21 +59,7 @@ export async function saveMemory(memory: {
 export async function updateAccessCounts(memoryIds: string[]): Promise<void> {
   if (memoryIds.length === 0) return;
 
-  for (const id of memoryIds) {
-    const { data } = await supabaseAdmin
-      .from('memories')
-      .select('access_count')
-      .eq('id', id)
-      .single();
-
-    if (data) {
-      await supabaseAdmin
-        .from('memories')
-        .update({
-          access_count: data.access_count + 1,
-          last_accessed_at: new Date().toISOString(),
-        })
-        .eq('id', id);
-    }
-  }
+  await supabaseAdmin.rpc('increment_memory_access', {
+    p_memory_ids: memoryIds,
+  });
 }

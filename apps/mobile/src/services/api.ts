@@ -10,6 +10,7 @@ const API_URL =
 
 const MAX_RETRIES = 2;
 const RETRY_BASE_MS = 800;
+const REQUEST_TIMEOUT_MS = 30000;
 
 async function getAuthHeader(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession();
@@ -28,6 +29,8 @@ async function request<T>(
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const headers = await getAuthHeader();
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
       const res = await fetch(`${API_URL}${path}`, {
         method,
@@ -36,7 +39,10 @@ async function request<T>(
           ...headers,
         },
         body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeout);
 
       if (!res.ok) {
         const error = await res.json().catch(() => ({ error: 'Request failed' }));
