@@ -1,6 +1,14 @@
-import Purchases, { PURCHASES_ERROR_CODE } from 'react-native-purchases';
 import type { PurchasesError } from 'react-native-purchases';
 import { api } from './api';
+
+// Lazy-load react-native-purchases to avoid TurboModule initialization at bundle load time
+function getPurchases() {
+  return require('react-native-purchases').default as typeof import('react-native-purchases').default;
+}
+
+function getPurchasesErrorCode() {
+  return require('react-native-purchases').PURCHASES_ERROR_CODE as typeof import('react-native-purchases').PURCHASES_ERROR_CODE;
+}
 
 const API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? '';
 
@@ -9,15 +17,20 @@ export async function configurePurchases(userId: string) {
     if (__DEV__) console.warn('[purchases] EXPO_PUBLIC_REVENUECAT_API_KEY is empty, skipping configure');
     return;
   }
-  Purchases.configure({
-    apiKey: API_KEY,
-    appUserID: userId,
-  });
+  try {
+    getPurchases().configure({
+      apiKey: API_KEY,
+      appUserID: userId,
+    });
+  } catch (err) {
+    console.error('[purchases] Failed to configure RevenueCat:', err);
+  }
 }
 
 export async function purchaseGems(
   productId: string,
 ): Promise<{ gems: number; purchased: number }> {
+  const Purchases = getPurchases();
   const products = await Purchases.getProducts([productId]);
   if (products.length === 0) {
     throw new Error('Product not found in store');
@@ -60,7 +73,7 @@ export async function purchaseGems(
 }
 
 export async function restorePurchases() {
-  await Purchases.restorePurchases();
+  getPurchases().restorePurchases();
 }
 
 export function isUserCancellation(error: unknown): boolean {
@@ -68,6 +81,6 @@ export function isUserCancellation(error: unknown): boolean {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as PurchasesError).code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR
+    (error as PurchasesError).code === getPurchasesErrorCode().PURCHASE_CANCELLED_ERROR
   );
 }

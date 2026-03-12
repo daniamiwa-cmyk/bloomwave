@@ -11,7 +11,6 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import Purchases from 'react-native-purchases';
 import { api } from '@/services/api';
 import { purchaseGems, restorePurchases, isUserCancellation } from '@/services/purchases';
 import { useAuthStore } from '@/stores/authStore';
@@ -41,6 +40,7 @@ export default function GemsScreen() {
       // Fetch localized prices from RevenueCat
       try {
         const productIds = data.products.map((p) => p.product_id);
+        const Purchases = require('react-native-purchases').default;
         const storeProducts = await Purchases.getProducts(productIds);
         const priceMap: Record<string, string> = {};
         for (const sp of storeProducts) {
