@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../services/supabase';
 import { api } from '../services/api';
-import { configurePurchases } from '../services/purchases';
 import type { UserProfile } from '@amai/shared';
 
 interface AuthState {
@@ -35,10 +34,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isAuthenticated: true,
         isLoading: false,
       });
-      Promise.all([
-        get().loadProfile(),
-        configurePurchases(data.session.user.id),
-      ]).catch((err) => console.error('[auth] Background init error:', err));
+      get().loadProfile().catch((err) => console.error('[auth] Background init error:', err));
     } else {
       set({ isLoading: false });
     }
@@ -50,10 +46,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           email: session.user.email || null,
           isAuthenticated: true,
         });
-        Promise.all([
-          get().loadProfile(),
-          configurePurchases(session.user.id),
-        ]).catch((err) => console.error('[auth] Background init error:', err));
+        get().loadProfile().catch((err) => console.error('[auth] Background init error:', err));
       } else {
         set({ userId: null, email: null, profile: null, isAuthenticated: false });
       }

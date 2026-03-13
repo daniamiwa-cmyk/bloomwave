@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@/services/api';
-import { purchaseGems, restorePurchases, isUserCancellation } from '@/services/purchases';
+import { purchaseGems, restorePurchases, isUserCancellation, ensureConfigured } from '@/services/purchases';
 import { useAuthStore } from '@/stores/authStore';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
@@ -39,6 +39,7 @@ export default function GemsScreen() {
 
       // Fetch localized prices from RevenueCat
       try {
+        ensureConfigured(profile?.user_id);
         const productIds = data.products.map((p) => p.product_id);
         const Purchases = require('react-native-purchases').default;
         const storeProducts = await Purchases.getProducts(productIds);

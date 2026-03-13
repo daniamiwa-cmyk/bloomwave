@@ -11,17 +11,20 @@ function getPurchasesErrorCode() {
 }
 
 const API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? '';
+let configured = false;
 
-export async function configurePurchases(userId: string) {
-  if (!API_KEY) {
-    if (__DEV__) console.warn('[purchases] EXPO_PUBLIC_REVENUECAT_API_KEY is empty, skipping configure');
-    return;
-  }
+/**
+ * Ensures RevenueCat is configured. Safe to call multiple times.
+ * Called lazily on first purchase/product fetch, not at app startup.
+ */
+export function ensureConfigured(userId?: string) {
+  if (configured || !API_KEY) return;
   try {
     getPurchases().configure({
       apiKey: API_KEY,
-      appUserID: userId,
+      ...(userId ? { appUserID: userId } : {}),
     });
+    configured = true;
   } catch (err) {
     console.error('[purchases] Failed to configure RevenueCat:', err);
   }
@@ -30,6 +33,7 @@ export async function configurePurchases(userId: string) {
 export async function purchaseGems(
   productId: string,
 ): Promise<{ gems: number; purchased: number }> {
+  ensureConfigured();
   const Purchases = getPurchases();
   const products = await Purchases.getProducts([productId]);
   if (products.length === 0) {
@@ -73,6 +77,7 @@ export async function purchaseGems(
 }
 
 export async function restorePurchases() {
+  ensureConfigured();
   await getPurchases().restorePurchases();
 }
 

@@ -7,14 +7,14 @@
     "icon": "./assets/images/icon.png",
     "scheme": "amaia",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFF9F5"
     },
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "com.amaia.companion",
       "buildNumber": "1",
       "infoPlist": {
