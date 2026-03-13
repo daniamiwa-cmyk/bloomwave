@@ -53,7 +53,7 @@ export const webhookRoutes: FastifyPluginAsync = async (fastify) => {
       eventType === 'NON_RENEWING_PURCHASE' ||
       (eventType === 'INITIAL_PURCHASE' && !isSubscriptionProduct)
     ) {
-      // Check idempotency
+      // Check idempotency (fast path)
       const alreadyProcessed = await gemsService.checkTransactionProcessed(transactionId);
       if (alreadyProcessed) {
         return reply.code(200).send({ ok: true, status: 'already_processed' });
@@ -68,14 +68,22 @@ export const webhookRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(200).send({ ok: true, status: 'unknown_product' });
       }
 
-      await gemsService.addGems(
-        appUserId,
-        product.gems,
-        'purchase',
-        `Purchased ${product.label} (webhook)`,
-        productId,
-        transactionId,
-      );
+      try {
+        await gemsService.addGems(
+          appUserId,
+          product.gems,
+          'purchase',
+          `Purchased ${product.label} (webhook)`,
+          productId,
+          transactionId,
+        );
+      } catch (err: any) {
+        // Unique constraint violation on iap_transaction_id — duplicate webhook
+        if (err?.code === '23505') {
+          return reply.code(200).send({ ok: true, status: 'already_processed' });
+        }
+        throw err;
+      }
 
       return reply.code(200).send({ ok: true, status: 'credited' });
     }

@@ -7,7 +7,6 @@ import {
   TextInput,
   StyleSheet,
   Alert,
-  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,8 +29,12 @@ export default function CheckInsScreen() {
   }, []);
 
   const loadCheckins = async () => {
-    const data = await api.get<{ checkins: CheckIn[] }>('/api/v1/checkins');
-    setCheckins(data.checkins);
+    try {
+      const data = await api.get<{ checkins: CheckIn[] }>('/api/v1/checkins');
+      setCheckins(data.checkins);
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Could not load check-ins');
+    }
   };
 
   const handleCreate = async () => {

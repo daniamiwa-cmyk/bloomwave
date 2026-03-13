@@ -60,6 +60,18 @@ export const chatRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(400).send({ error: 'Message too long (max 4000 characters)' });
     }
 
+    // Verify user owns the thread
+    const { data: thread } = await supabaseAdmin
+      .from('threads')
+      .select('id')
+      .eq('id', thread_id)
+      .eq('user_id', request.userId)
+      .single();
+
+    if (!thread) {
+      return reply.code(404).send({ error: 'Thread not found' });
+    }
+
     const result = await chatService.sendMessage(request.userId, thread_id, content.trim());
     return result;
   });
@@ -78,6 +90,18 @@ export const chatRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(400).send({ error: 'Message too long (max 4000 characters)' });
     }
 
+    // Verify user owns the thread
+    const { data: thread } = await supabaseAdmin
+      .from('threads')
+      .select('id')
+      .eq('id', thread_id)
+      .eq('user_id', request.userId)
+      .single();
+
+    if (!thread) {
+      return reply.code(404).send({ error: 'Thread not found' });
+    }
+
     await chatService.sendMessageStreaming(request.userId, thread_id, content.trim(), reply);
   });
 
@@ -87,8 +111,8 @@ export const chatRoutes: FastifyPluginAsync = async (fastify) => {
     Querystring: { page?: string; limit?: string };
   }>('/:threadId/history', async (request) => {
     const { threadId } = request.params;
-    const page = parseInt(request.query.page || '0');
-    const limit = Math.min(parseInt(request.query.limit || '30'), 50);
+    const page = Math.max(0, parseInt(request.query.page || '0') || 0);
+    const limit = Math.min(parseInt(request.query.limit || '30') || 30, 50);
 
     return chatService.getMessageHistory(request.userId, threadId, page, limit);
   });

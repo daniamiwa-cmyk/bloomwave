@@ -171,7 +171,7 @@ export default function SignupScreen() {
 
           <Text style={styles.termsText}>
             By creating an account, you agree to our{' '}
-            <Text style={styles.termsLink} onPress={() => Linking.openURL('https://docs.google.com/document/d/1SiR-1JiE11SpT1VzezFJbWFE_2yAKI5x-xvVtOmzQgw/edit?usp=sharing')}>
+            <Text style={styles.termsLink} onPress={() => Linking.openURL('https://docs.google.com/document/d/1HxRGn7K9lLYRnQiTBFCnTQ0mirNB6gMC1kMEqVRDMdo/edit?usp=sharing')}>
               Terms of Service
             </Text>
             {' '}and{' '}

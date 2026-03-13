@@ -53,14 +53,24 @@ export const gemsRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(403).send({ error: 'Transaction verification failed' });
     }
 
-    const balance = await gemsService.addGems(
-      request.userId,
-      product.gems,
-      'purchase',
-      `Purchased ${product.label}`,
-      product_id,
-      transaction_id,
-    );
+    let balance: number;
+    try {
+      balance = await gemsService.addGems(
+        request.userId,
+        product.gems,
+        'purchase',
+        `Purchased ${product.label}`,
+        product_id,
+        transaction_id,
+      );
+    } catch (err: any) {
+      // Unique constraint violation — duplicate transaction
+      if (err?.code === '23505') {
+        const currentBalance = await gemsService.getBalance(request.userId);
+        return { gems: currentBalance, purchased: product.gems };
+      }
+      throw err;
+    }
 
     return { gems: balance, purchased: product.gems };
   });
@@ -70,8 +80,8 @@ export const gemsRoutes: FastifyPluginAsync = async (fastify) => {
     Querystring: { page?: string; limit?: string };
   }>('/transactions', async (request) => {
     const { supabaseAdmin } = await import('../lib/supabase.js');
-    const page = parseInt(request.query.page || '0');
-    const limit = Math.min(parseInt(request.query.limit || '20'), 50);
+    const page = Math.max(0, parseInt(request.query.page || '0') || 0);
+    const limit = Math.min(parseInt(request.query.limit || '20') || 20, 50);
     const offset = page * limit;
 
     const { data, count } = await supabaseAdmin

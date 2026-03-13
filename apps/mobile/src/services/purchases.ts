@@ -73,7 +73,7 @@ export async function purchaseGems(
 }
 
 export async function restorePurchases() {
-  getPurchases().restorePurchases();
+  await getPurchases().restorePurchases();
 }
 
 export function isUserCancellation(error: unknown): boolean {

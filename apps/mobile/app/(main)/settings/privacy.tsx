@@ -86,7 +86,7 @@ export default function PrivacyScreen() {
 
         <TouchableOpacity
           style={styles.policyLink}
-          onPress={() => Linking.openURL('https://docs.google.com/document/d/1SiR-1JiE11SpT1VzezFJbWFE_2yAKI5x-xvVtOmzQgw/edit?usp=sharing')}
+          onPress={() => Linking.openURL('https://docs.google.com/document/d/1HxRGn7K9lLYRnQiTBFCnTQ0mirNB6gMC1kMEqVRDMdo/edit?usp=sharing')}
         >
           <Text style={styles.policyLinkText}>Terms of Service</Text>
           <Ionicons name="open-outline" size={14} color={colors.primary} />

@@ -96,6 +96,23 @@ export async function claimDailyGems(userId: string): Promise<{ claimed: boolean
     return { claimed: false, balance: data.gems };
   }
 
+  // Atomic claim: only update last_free_gems_at if it hasn't changed (prevents concurrent claims)
+  const cutoff = new Date(now.getTime() - 24 * 3600000).toISOString();
+  const { data: updated, error: updateError } = await supabaseAdmin
+    .from('user_profiles')
+    .update({ last_free_gems_at: now.toISOString() })
+    .eq('user_id', userId)
+    .or(`last_free_gems_at.is.null,last_free_gems_at.lt.${cutoff}`)
+    .select('user_id')
+    .maybeSingle();
+
+  if (updateError) throw updateError;
+
+  // If no row was updated, another request already claimed
+  if (!updated) {
+    return { claimed: false, balance: data.gems };
+  }
+
   // Atomic increment for daily gems
   const { data: newBalance, error: rpcError } = await supabaseAdmin.rpc('add_gems', {
     p_user_id: userId,
@@ -103,11 +120,6 @@ export async function claimDailyGems(userId: string): Promise<{ claimed: boolean
   });
 
   if (rpcError) throw rpcError;
-
-  await supabaseAdmin
-    .from('user_profiles')
-    .update({ last_free_gems_at: now.toISOString() })
-    .eq('user_id', userId);
 
   await supabaseAdmin.from('gem_transactions').insert({
     user_id: userId,

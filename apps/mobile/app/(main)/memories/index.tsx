@@ -74,10 +74,14 @@ export default function MemoriesScreen() {
   };
 
   const handlePin = async (memory: Memory) => {
-    await api.post(`/api/v1/memories/${memory.id}/pin`);
-    setMemories((prev) =>
-      prev.map((m) => (m.id === memory.id ? { ...m, is_pinned: !m.is_pinned } : m)),
-    );
+    try {
+      await api.post(`/api/v1/memories/${memory.id}/pin`);
+      setMemories((prev) =>
+        prev.map((m) => (m.id === memory.id ? { ...m, is_pinned: !m.is_pinned } : m)),
+      );
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Could not update pin status');
+    }
   };
 
   const formatDate = (dateStr: string) => {

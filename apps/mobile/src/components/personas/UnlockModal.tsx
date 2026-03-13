@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { getPortrait } from '@/utils/portraitMap';
@@ -50,7 +50,8 @@ export function UnlockModal({ persona, visible, onClose, onUnlock }: Props) {
         setSuccess(false);
         onClose();
       }, 1500);
-    } catch {
+    } catch (err: any) {
+      Alert.alert('Unlock failed', err.message || 'Could not unlock persona');
       setUnlocking(false);
     }
   };

@@ -74,7 +74,14 @@ export const threadRoutes: FastifyPluginAsync = async (fastify) => {
     Body: { title?: string; description?: string; color?: string; icon?: string; is_archived?: boolean };
   }>('/:threadId', async (request) => {
     const { threadId } = request.params;
-    const updates = request.body;
+    const ALLOWED_FIELDS = ['title', 'description', 'color', 'icon', 'is_archived'];
+    const updates = Object.fromEntries(
+      Object.entries(request.body || {}).filter(([k]) => ALLOWED_FIELDS.includes(k)),
+    );
+
+    if (Object.keys(updates).length === 0) {
+      return request.body; // No valid fields to update
+    }
 
     const { data, error } = await supabaseAdmin
       .from('threads')
