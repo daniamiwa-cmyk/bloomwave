@@ -9,3 +9,6 @@ ios/
 android/
 *.tsbuildinfo
 .turbo/
+.next/
+.vercel/
+out/
