@@ -1,10 +1,32 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-export async function POST() {
+const products: Record<string, { name: string; description: string; amount: number }> = {
+  'bloom-within': {
+    name: 'Bloom Within — 60-Card Daily Practice Deck',
+    description:
+      '20 Affirmation Cards, 20 Mini-Meditation Cards, 20 Creative Prompt Cards. Printed on thick, premium stock with a soft sheen finish.',
+    amount: 6500,
+  },
+  'coloring-book': {
+    name: 'Women & Nature — Affirmation Coloring Book for Strong Women',
+    description:
+      'Nature-themed botanical illustrations paired with affirmations and journal prompts. Single-sided pages, suitable for all skill levels.',
+    amount: 999,
+  },
+}
+
+export async function POST(req: NextRequest) {
   try {
+    const body = await req.json()
+    const product = products[body.product]
+
+    if (!product) {
+      return NextResponse.json({ error: 'Invalid product' }, { status: 400 })
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [
@@ -12,11 +34,10 @@ export async function POST() {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Bloom Within — 60-Card Daily Practice Deck',
-              description:
-                '20 Affirmation Cards, 20 Mini-Meditation Cards, 20 Creative Prompt Cards. Printed on thick, premium stock with a soft sheen finish.',
+              name: product.name,
+              description: product.description,
             },
-            unit_amount: 6500,
+            unit_amount: product.amount,
           },
           quantity: 1,
         },
