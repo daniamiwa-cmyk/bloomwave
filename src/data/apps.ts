@@ -86,9 +86,10 @@ export const apps: AppInfo[] = [
     iconBg: '#DDE8DD',
     iconImage: '/icons/rootandrune.png',
     screenshots: [
-      { src: '/screenshots/rootandrune-learn.png', alt: 'Root & Rune learn screen with moon phase and lessons' },
+      { src: '/screenshots/rootandrune-learn.png', alt: 'Root & Rune learn screen with moon phase, archives, and lesson progress' },
+      { src: '/screenshots/rootandrune-paths.png', alt: 'Dream Worker path with structured lessons' },
       { src: '/screenshots/rootandrune-codex.png', alt: 'Codex with Flora, Fauna, Dreams, Arcana, Stones, and Stars categories' },
-      { src: '/screenshots/rootandrune-journal.png', alt: 'Journal with category filters for Personal, Tarot, Dream, and Hedge' },
+      { src: '/screenshots/rootandrune-lesson.png', alt: 'Energy Work lesson with illustration and content' },
     ],
   },
   {
