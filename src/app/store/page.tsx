@@ -71,6 +71,15 @@ export default function StorePage() {
           <div className="w-12 h-px bg-forest-400/40" />
         </div>
 
+        <div className="flex justify-center gap-4 mb-10">
+          <div className="rounded-2xl overflow-hidden shadow-lg shadow-bark-500/10 border border-cream-300/40 max-w-[200px]">
+            <img src="/store/card-1.jpg" alt="Bloom Within card — I bloom in my own time, in my own way" className="w-full h-auto" />
+          </div>
+          <div className="rounded-2xl overflow-hidden shadow-lg shadow-bark-500/10 border border-cream-300/40 max-w-[200px]">
+            <img src="/store/card-2.jpg" alt="Bloom Within card — Imagine your doubts as autumn leaves drifting away in the wind" className="w-full h-auto" />
+          </div>
+        </div>
+
         <div className="max-w-xl mx-auto text-left space-y-4 text-bark-300 leading-relaxed">
           <p className="text-lg font-medium text-bark-500">
             Pull one card. That&rsquo;s it.
@@ -167,6 +176,12 @@ export default function StorePage() {
             Affirmation Coloring Book for Strong Women
           </p>
 
+          <div className="flex justify-center mb-10">
+            <div className="rounded-2xl overflow-hidden shadow-lg shadow-bark-500/10 border border-cream-300/40 max-w-[240px]">
+              <img src="/store/coloring-book-cover.jpg" alt="Women & Nature — Affirmation Coloring Book cover" className="w-full h-auto" />
+            </div>
+          </div>
+
           <div className="flex items-center justify-center gap-3 mb-8">
             <div className="w-12 h-px bg-forest-400/40" />
             <div className="w-1.5 h-1.5 rounded-full bg-forest-400/40" />
@@ -228,7 +243,7 @@ export default function StorePage() {
       </section>
 
       <section className="max-w-3xl mx-auto px-6 mb-16">
-        <BuyButton product="coloring-book" price="$9.99" />
+        <BuyButton product="coloring-book" price="$14.99" />
       </section>
 
       {/* ──────────────── SHARED SECTIONS ──────────────── */}

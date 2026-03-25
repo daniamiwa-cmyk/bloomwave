@@ -93,7 +93,7 @@ const showcases: { name: string; screenshots: Screenshot[] }[] = [
 export default function Home() {
   return (
     <>
-      <section className="min-h-[85vh] flex flex-col items-center justify-center text-center px-6 pt-14">
+      <section className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6 pt-14">
         <svg
           className="w-16 h-16 text-forest-400 mb-8 opacity-60"
           viewBox="0 0 64 64"

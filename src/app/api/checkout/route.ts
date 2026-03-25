@@ -14,7 +14,7 @@ const products: Record<string, { name: string; description: string; amount: numb
     name: 'Women & Nature — Affirmation Coloring Book for Strong Women',
     description:
       'Nature-themed botanical illustrations paired with affirmations and journal prompts. Single-sided pages, suitable for all skill levels.',
-    amount: 999,
+    amount: 1499,
   },
 }
 
