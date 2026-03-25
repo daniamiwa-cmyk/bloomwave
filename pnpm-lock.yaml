@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      stripe:
+        specifier: ^20.4.1
+        version: 20.4.1(@types/node@20.19.37)
     devDependencies:
       '@fal-ai/client':
         specifier: ^1.9.4
@@ -3812,6 +3816,15 @@ packages:
   strip-json-comments@2.0.1:
     resolution: {integrity: sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==}
     engines: {node: '>=0.10.0'}
+
+  stripe@20.4.1:
+    resolution: {integrity: sha512-axCguHItc8Sxt0HC6aSkdVRPffjYPV7EQqZRb2GkIa8FzWDycE7nHJM19C6xAIynH1Qp1/BHiopSi96jGBxT0w==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@types/node': '>=16'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   structured-headers@0.4.1:
     resolution: {integrity: sha512-0MP/Cxx5SzeeZ10p/bZI0S6MpgD+yxAhi1BOQ34jgnMXsCq3j1t6tQnZu+KdlL7dvJTLT3g9xN8tl10TqgFMcg==}
@@ -8380,6 +8393,10 @@ snapshots:
       ansi-regex: 5.0.1
 
   strip-json-comments@2.0.1: {}
+
+  stripe@20.4.1(@types/node@20.19.37):
+    optionalDependencies:
+      '@types/node': 20.19.37
 
   structured-headers@0.4.1: {}
 
