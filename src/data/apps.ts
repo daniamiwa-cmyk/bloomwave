@@ -1,0 +1,105 @@
+export interface AppInfo {
+  name: string
+  slug: string
+  tagline: string
+  description?: string
+  price: string
+  icon: string
+  iconBg: string
+  iconImage?: string
+  status?: 'coming-soon' | 'in-development' | 'available'
+  appStoreUrl?: string
+  screenshots?: { src: string; alt: string }[]
+}
+
+export const apps: AppInfo[] = [
+  {
+    name: 'Bloom Affirmations',
+    slug: 'bloom',
+    tagline:
+      'Daily affirmations, AI coaching, mood check-ins, and journaling — your pocket companion for intentional living.',
+    description:
+      'Bloom Affirmations is your daily practice companion. Each morning, you receive three new cards — an affirmation, a mini-meditation, and a creative prompt — designed to meet you where you are. Reflect on what resonates, journal your thoughts with built-in mood check-ins, and talk through whatever is on your mind with an AI coach grounded in real coaching principles. No toxic positivity. No performative wellness. Just a quiet, honest space to come back to yourself.',
+    price: 'Free + Pro $4.99/mo',
+    icon: '\u{1F338}',
+    iconBg: '#F5E0E0',
+    iconImage: '/icons/bloom.jpg',
+    status: 'available',
+    appStoreUrl: 'https://apps.apple.com/us/app/bloom-affirmation/id6759355085',
+    screenshots: [
+      { src: '/screenshots/bloom-home.png', alt: 'Bloom home screen with daily affirmation card' },
+      { src: '/screenshots/bloom-journal-entry.png', alt: 'Journal entry with mood check-in' },
+      { src: '/screenshots/bloom-coach.png', alt: 'AI coaching conversation' },
+      { src: '/screenshots/bloom-journal.png', alt: 'Journal entries list' },
+    ],
+  },
+  {
+    name: 'SpellCraft Studio',
+    slug: 'spellcraft',
+    tagline:
+      'A modern witchcraft companion — explore herbs, stones, and spells with a beautifully curated encyclopedia.',
+    description:
+      'SpellCraft Studio is a beautifully designed companion for modern witchcraft practitioners. Browse a curated encyclopedia of herbs, crystals, oils, and magical correspondences. Craft your own spells with guided intention-setting, track moon phases, and build your personal grimoire. Whether you are a seasoned practitioner or just beginning to explore, SpellCraft meets you with warmth, beauty, and zero gatekeeping.',
+    price: 'Free + Pro $5.99/mo',
+    icon: '\u2728',
+    iconBg: '#E6DFEF',
+    iconImage: '/icons/spellcraft.png',
+    screenshots: [
+      { src: '/screenshots/spellcraft-home.png', alt: 'SpellCraft home screen showing moon phase and daily wisdom' },
+      { src: '/screenshots/spellcraft-craft.png', alt: 'Craft a spell interface with intention categories' },
+      { src: '/screenshots/spellcraft-encyclopedia.png', alt: 'Encyclopedia of herbs, crystals, and oils' },
+    ],
+  },
+  {
+    name: 'Amaia',
+    slug: 'amaia',
+    tagline:
+      'An AI companion who actually remembers you. Gentle coaching, daily check-ins, and real conversations.',
+    description:
+      'Amaia is an AI companion app built around the idea that meaningful conversation requires memory. Choose from unique AI characters — each with their own personality and conversation style — and build a real relationship over time. They remember what you have told them, follow up on things that matter to you, and meet you where you are. Free daily gems keep the conversation going, with packs available when you want more.',
+    price: 'Free + In-App Purchases',
+    icon: '\u{1F319}',
+    iconBg: '#DDE8F0',
+    iconImage: '/icons/amaia.png',
+    screenshots: [],
+  },
+  {
+    name: 'Fated & Jaded',
+    slug: 'fated-and-jaded',
+    tagline:
+      'Irreverent astrology for people who don\u2019t believe in astrology. Sarcasm-forward cosmic guidance.',
+    price: 'Free + Pro $7.99/mo',
+    icon: '\u{1F52E}',
+    iconBg: '#F0E0DD',
+    iconImage: '/icons/fatedjaded.png',
+    status: 'in-development',
+  },
+  {
+    name: 'Root & Rune',
+    slug: 'root-and-rune',
+    tagline:
+      'Gamified education in astrology, tarot, hedge witchery, and dream work. Learn at your own pace.',
+    description:
+      'Root & Rune turns the study of astrology, tarot, hedge witchery, and dream work into a beautiful, gamified learning experience. Progress through structured lessons at your own pace, practice with interactive exercises, and track your growth across disciplines. Designed for curious minds who want depth without dogma — whether you are a complete beginner or deepening an existing practice.',
+    price: 'Pro $7.99/mo \u00b7 Annual $49.99',
+    icon: '\u{1F33F}',
+    iconBg: '#DDE8DD',
+    iconImage: '/icons/rootandrune.png',
+    screenshots: [
+      { src: '/screenshots/rootandrune-learn.png', alt: 'Root & Rune learn screen with moon phase and lessons' },
+      { src: '/screenshots/rootandrune-codex.png', alt: 'Codex with Flora, Fauna, Dreams, Arcana, Stones, and Stars categories' },
+      { src: '/screenshots/rootandrune-journal.png', alt: 'Journal with category filters for Personal, Tarot, Dream, and Hedge' },
+    ],
+  },
+  {
+    name: 'Chibi Jump',
+    slug: 'chibi-jump',
+    tagline:
+      'An old-school platformer starring a tiny, determined jumping spider. Simple. Addictive. Adorable.',
+    price: 'Free',
+    icon: '\u{1F577}\uFE0F',
+    iconBg: '#F0ECD5',
+    iconImage: '/icons/chibijump.png',
+    status: 'in-development',
+  },
+]

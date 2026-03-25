@@ -1,94 +1,6 @@
-import AppCard, { AppInfo } from '@/components/AppCard'
+import AppCard from '@/components/AppCard'
 import Newsletter from '@/components/Newsletter'
-
-const apps: AppInfo[] = [
-  {
-    name: 'Bloom Affirmations',
-    slug: 'bloom',
-    tagline:
-      'Daily affirmations, AI coaching, mood check-ins, and journaling — your pocket companion for intentional living.',
-    price: 'Free + Pro $4.99/mo',
-
-    icon: '\u{1F338}',
-    iconBg: '#F5E0E0',
-    iconImage: '/icons/bloom.jpg',
-    status: 'available',
-    appStoreUrl: 'https://apps.apple.com/us/app/bloom-affirmation/id6759355085',
-  },
-  {
-    name: 'SpellCraft Studio',
-    slug: 'spellcraft',
-    tagline:
-      'A modern witchcraft companion — explore herbs, stones, and spells with a beautifully curated encyclopedia.',
-    price: 'Free + Pro $5.99/mo',
-
-    icon: '\u2728',
-    iconBg: '#E6DFEF',
-    iconImage: '/icons/spellcraft.png',
-  },
-  {
-    name: 'Amaia',
-    slug: 'amaia',
-    tagline:
-      'An AI companion who actually remembers you. Gentle coaching, daily check-ins, and real conversations.',
-    price: 'Free + In-App Purchases',
-
-    icon: '\u{1F319}',
-    iconBg: '#DDE8F0',
-    iconImage: '/icons/amaia.png',
-  },
-  {
-    name: 'Fated & Jaded',
-    slug: 'fated-and-jaded',
-    tagline:
-      'Irreverent astrology for people who don\u2019t believe in astrology. Sarcasm-forward cosmic guidance.',
-    price: 'Free + Pro $7.99/mo',
-
-    icon: '\u{1F52E}',
-    iconBg: '#F0E0DD',
-    iconImage: '/icons/fatedjaded.png',
-    status: 'in-development',
-  },
-  {
-    name: 'Root & Rune',
-    slug: 'root-and-rune',
-    tagline:
-      'Gamified education in astrology, tarot, hedge witchery, and dream work. Learn at your own pace.',
-    price: 'Free (3 snails/day) + Premium $9.99/mo',
-
-    icon: '\u{1F33F}',
-    iconBg: '#DDE8DD',
-    iconImage: '/icons/rootandrune.png',
-  },
-  {
-    name: 'Chibi Jump',
-    slug: 'chibi-jump',
-    tagline:
-      'An old-school platformer starring a tiny, determined jumping spider. Simple. Addictive. Adorable.',
-    price: 'Free',
-
-    icon: '\u{1F577}\uFE0F',
-    iconBg: '#F0ECD5',
-    iconImage: '/icons/chibijump.png',
-    status: 'in-development',
-  },
-]
-
-interface Screenshot {
-  src: string
-  alt: string
-}
-
-const showcases: { name: string; screenshots: Screenshot[] }[] = [
-  {
-    name: 'SpellCraft Studio',
-    screenshots: [
-      { src: '/screenshots/spellcraft-home.png', alt: 'SpellCraft home screen showing moon phase and daily wisdom' },
-      { src: '/screenshots/spellcraft-craft.png', alt: 'Craft a spell interface with intention categories' },
-      { src: '/screenshots/spellcraft-encyclopedia.png', alt: 'Encyclopedia of herbs, crystals, and oils' },
-    ],
-  },
-]
+import { apps } from '@/data/apps'
 
 export default function Home() {
   return (
@@ -171,34 +83,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      {showcases.map((showcase) => (
-        <section key={showcase.name} className="max-w-6xl mx-auto px-6 pb-24">
-          <div className="flex items-center gap-3 mb-10">
-            <div className="h-px flex-1 bg-cream-300" />
-            <h2 className="font-serif text-lg text-bark-300">
-              Inside {showcase.name}
-            </h2>
-            <div className="h-px flex-1 bg-cream-300" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 justify-items-center">
-            {showcase.screenshots.map((screenshot) => (
-              <div
-                key={screenshot.src}
-                className="relative rounded-3xl overflow-hidden shadow-xl shadow-bark-500/10 border border-cream-300/40 max-w-[280px]"
-              >
-                <img
-                  src={screenshot.src}
-                  alt={screenshot.alt}
-                  className="w-full h-auto"
-                  loading="lazy"
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
 
       <Newsletter />
     </>
