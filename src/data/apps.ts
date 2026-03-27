@@ -44,6 +44,8 @@ export const apps: AppInfo[] = [
     icon: '\u2728',
     iconBg: '#E6DFEF',
     iconImage: '/icons/spellcraft.png',
+    status: 'available',
+    appStoreUrl: 'https://apps.apple.com/us/app/spell-craft-studio/id6760242229',
     screenshots: [
       { src: '/screenshots/spellcraft-home.png', alt: 'SpellCraft home screen showing moon phase and daily wisdom' },
       { src: '/screenshots/spellcraft-craft.png', alt: 'Craft a spell interface with intention categories' },
