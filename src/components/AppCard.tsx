@@ -1,15 +1,20 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { AppInfo } from '@/data/apps'
 
 export default function AppCard({ app }: { app: AppInfo }) {
+  const router = useRouter()
   const isDev = app.status === 'in-development'
   const isAvailable = app.status === 'available'
   const isClickable = !isDev
 
-  const card = (
-    <div className={`group rounded-2xl border border-cream-300/60 p-6 flex flex-col transition-all duration-300 ${isDev ? 'bg-cream-100/50 opacity-50' : 'bg-cream-50 hover:shadow-lg hover:shadow-bark-500/5 hover:-translate-y-1'} ${isClickable ? 'cursor-pointer' : ''}`}>
+  return (
+    <div
+      className={`group rounded-2xl border border-cream-300/60 p-6 flex flex-col transition-all duration-300 ${isDev ? 'bg-cream-100/50 opacity-50' : 'bg-cream-50 hover:shadow-lg hover:shadow-bark-500/5 hover:-translate-y-1'} ${isClickable ? 'cursor-pointer' : ''}`}
+      onClick={isClickable ? () => router.push(`/apps/${app.slug}`) : undefined}
+    >
       {app.iconImage ? (
         <img
           src={app.iconImage}
@@ -85,14 +90,4 @@ export default function AppCard({ app }: { app: AppInfo }) {
       </div>
     </div>
   )
-
-  if (isClickable) {
-    return (
-      <Link href={`/apps/${app.slug}`} className="block">
-        {card}
-      </Link>
-    )
-  }
-
-  return card
 }

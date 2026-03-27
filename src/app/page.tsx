@@ -84,6 +84,35 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="max-w-2xl mx-auto px-6 pb-16">
+        <div className="flex items-center gap-3 mb-10">
+          <div className="h-px flex-1 bg-cream-300" />
+          <h2 className="font-serif text-lg text-bark-300">Support the Studio</h2>
+          <div className="h-px flex-1 bg-cream-300" />
+        </div>
+
+        <div className="text-center space-y-4">
+          <p className="text-bark-300 leading-relaxed max-w-lg mx-auto">
+            BloomWave is a one-person studio. Every app is designed, built, and maintained by a single human who cares deeply about making beautiful, honest tools. If any of this resonates with you, a small contribution goes a long way.
+          </p>
+          <a
+            href="https://ko-fi.com/bloomwave"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-forest-400 text-cream-50 font-medium hover:bg-forest-500 transition-colors"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            Buy Me a Coffee on Ko-fi
+          </a>
+          <p className="text-xs text-bark-200">
+            No account needed. One-time or recurring — whatever feels right.
+          </p>
+        </div>
+      </section>
+
       <Newsletter />
     </>
   )

@@ -93,6 +93,19 @@ export const apps: AppInfo[] = [
     ],
   },
   {
+    name: 'WildMind',
+    slug: 'wildmind',
+    tagline:
+      'A nature oracle and field journal — pull a daily card, log what you notice outside, and let the animals teach you things.',
+    description:
+      'WildMind is a nature-focused oracle and journaling app. Each day, pull a card from an animal oracle deck spanning four realms — Ocean, Forest, Sky, and Desert — and discover what the natural world is trying to tell you. Log your observations, reflect on prompted questions, and build a personal field journal over time. Go outside. Notice something. Let it mean something.',
+    price: 'Free + Premium',
+    icon: '\u{1F43E}',
+    iconBg: '#DDE8DD',
+    iconImage: '/icons/wildmind.png',
+    status: 'in-development',
+  },
+  {
     name: 'Chibi Jump',
     slug: 'chibi-jump',
     tagline:
