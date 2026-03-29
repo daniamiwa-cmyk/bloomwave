@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { subscribeToNewsletter } from '@/app/actions/subscribe'
 
 export default function Newsletter() {
   const [email, setEmail] = useState('')
@@ -13,7 +12,15 @@ export default function Newsletter() {
     setStatus('loading')
     setErrorMsg('')
     try {
-      await subscribeToNewsletter(email)
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data?.message ?? 'Subscription failed')
+      }
       setStatus('success')
       setEmail('')
     } catch (err) {
