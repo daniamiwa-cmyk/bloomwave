@@ -12,12 +12,19 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const app = apps.find((a) => a.slug === params.slug)
   if (!app) return {}
+  const description = app.description ?? app.tagline
   return {
     title: `${app.name} — BloomWave`,
-    description: app.tagline,
+    description,
     openGraph: {
       title: `${app.name} — BloomWave`,
-      description: app.tagline,
+      description,
+      images: [`/apps/${app.slug}/opengraph-image`],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${app.name} — BloomWave`,
+      description,
     },
   }
 }
@@ -37,6 +44,7 @@ function AppJsonLd({ app }: { app: (typeof apps)[number] }) {
       price: '0',
       priceCurrency: 'USD',
     },
+    ...(app.appStoreUrl && { url: app.appStoreUrl }),
     ...(app.iconImage && {
       image: `https://bloomwave.app${app.iconImage}`,
     }),

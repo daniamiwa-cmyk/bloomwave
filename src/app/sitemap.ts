@@ -8,7 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     .filter((app) => app.status !== 'in-development')
     .map((app) => ({
       url: `${baseUrl}/apps/${app.slug}`,
-      lastModified: new Date(),
+      lastModified: app.lastModified ? new Date(app.lastModified) : new Date(),
     }))
 
   return [

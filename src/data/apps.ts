@@ -10,6 +10,7 @@ export interface AppInfo {
   status?: 'coming-soon' | 'in-development' | 'available'
   appStoreUrl?: string
   screenshots?: { src: string; alt: string }[]
+  lastModified?: string
 }
 
 export const apps: AppInfo[] = [
@@ -26,6 +27,7 @@ export const apps: AppInfo[] = [
     iconImage: '/icons/bloom.jpg',
     status: 'available',
     appStoreUrl: 'https://apps.apple.com/us/app/bloom-affirmation/id6759355085',
+    lastModified: '2025-11-01',
     screenshots: [
       { src: '/screenshots/bloom-home.png', alt: 'Bloom home screen with daily affirmation card' },
       { src: '/screenshots/bloom-journal-entry.png', alt: 'Journal entry with mood check-in' },
@@ -46,6 +48,7 @@ export const apps: AppInfo[] = [
     iconImage: '/icons/spellcraft.png',
     status: 'available',
     appStoreUrl: 'https://apps.apple.com/us/app/spell-craft-studio/id6760242229',
+    lastModified: '2025-12-01',
     screenshots: [
       { src: '/screenshots/spellcraft-home.png', alt: 'SpellCraft home screen showing moon phase and daily wisdom' },
       { src: '/screenshots/spellcraft-craft.png', alt: 'Craft a spell interface with intention categories' },
@@ -87,6 +90,7 @@ export const apps: AppInfo[] = [
     icon: '\u{1F33F}',
     iconBg: '#DDE8DD',
     iconImage: '/icons/rootandrune.png',
+    lastModified: '2026-02-01',
     screenshots: [
       { src: '/screenshots/rootandrune-learn.png', alt: 'Root & Rune learn screen with moon phase, archives, and lesson progress' },
       { src: '/screenshots/rootandrune-paths.png', alt: 'Dream Worker path with structured lessons' },

@@ -21,9 +21,9 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://bloomwave.app'),
-  title: 'BloomWave — Apps for the curious, the mystical, and the beautifully weird.',
+  title: 'BloomWave — iOS Apps for Spirituality, Wellness & the Beautifully Weird',
   description:
-    'BloomWave is a mobile app studio crafting warm, beautiful apps for the curious, the mystical, and the beautifully weird.',
+    'BloomWave is an iOS app studio crafting beautiful apps for spiritual wellness, witchcraft, astrology, affirmations, and mindfulness. Apps for the curious, the mystical, and the beautifully weird.',
   icons: {
     icon: '/favicon.svg',
   },
