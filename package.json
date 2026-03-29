@@ -24,6 +24,8 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "stripe": "^20.4.1"
   }
 }

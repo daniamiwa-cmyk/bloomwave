@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { apps } from '@/data/apps'
 
 export function generateStaticParams() {
@@ -8,13 +9,45 @@ export function generateStaticParams() {
     .map((app) => ({ slug: app.slug }))
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const app = apps.find((a) => a.slug === params.slug)
   if (!app) return {}
   return {
     title: `${app.name} — BloomWave`,
     description: app.tagline,
+    openGraph: {
+      title: `${app.name} — BloomWave`,
+      description: app.tagline,
+    },
   }
+}
+
+function AppJsonLd({ app }: { app: (typeof apps)[number] }) {
+  if (app.status !== 'available') return null
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'MobileApplication',
+    name: app.name,
+    description: app.description || app.tagline,
+    operatingSystem: 'iOS',
+    applicationCategory: 'LifestyleApplication',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    ...(app.iconImage && {
+      image: `https://bloomwave.app${app.iconImage}`,
+    }),
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  )
 }
 
 export default function AppPage({ params }: { params: { slug: string } }) {
@@ -26,6 +59,7 @@ export default function AppPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="bg-cream-50 pt-24 pb-16">
+      <AppJsonLd app={app} />
       {/* Header */}
       <section className="max-w-3xl mx-auto px-6 text-center mb-12">
         <div className="flex justify-center mb-6">

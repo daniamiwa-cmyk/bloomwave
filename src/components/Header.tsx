@@ -9,6 +9,12 @@ export default function Header() {
         </Link>
         <nav className="flex items-center gap-5">
           <Link
+            href="/art"
+            className="text-sm text-bark-300 hover:text-forest-500 transition-colors"
+          >
+            Art
+          </Link>
+          <Link
             href="/store"
             className="text-sm text-bark-300 hover:text-forest-500 transition-colors"
           >

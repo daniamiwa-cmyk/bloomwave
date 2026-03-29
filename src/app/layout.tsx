@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { DM_Serif_Display, DM_Sans } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -18,13 +20,12 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://bloomwave.vercel.app'),
+  metadataBase: new URL('https://bloomwave.app'),
   title: 'BloomWave — Apps for the curious, the mystical, and the beautifully weird.',
   description:
     'BloomWave is a mobile app studio crafting warm, beautiful apps for the curious, the mystical, and the beautifully weird.',
   icons: {
     icon: '/favicon.svg',
-    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     title: 'BloomWave',
@@ -32,14 +33,20 @@ export const metadata: Metadata = {
     url: 'https://bloomwave.app',
     siteName: 'BloomWave',
     type: 'website',
-    images: [{ url: '/og-image.svg', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'BloomWave',
     description: 'Apps for the curious, the mystical, and the beautifully weird.',
-    images: ['/og-image.svg'],
   },
+}
+
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'BloomWave',
+  url: 'https://bloomwave.app',
+  logo: 'https://bloomwave.app/favicon.svg',
 }
 
 export default function RootLayout({
@@ -50,9 +57,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${dmSerif.variable} ${dmSans.variable}`}>
       <body className="font-sans antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <Header />
         <main>{children}</main>
         <Footer />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
