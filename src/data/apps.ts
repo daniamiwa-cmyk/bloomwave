@@ -24,7 +24,7 @@ export const apps: AppInfo[] = [
     price: 'Free + Pro $4.99/mo',
     icon: '\u{1F338}',
     iconBg: '#F5E0E0',
-    iconImage: '/icons/bloom.jpg',
+    iconImage: '/icons/bloom.png',
     status: 'available',
     appStoreUrl: 'https://apps.apple.com/us/app/bloom-affirmation/id6759355085',
     lastModified: '2025-11-01',
