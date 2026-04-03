@@ -90,6 +90,7 @@ export const apps: AppInfo[] = [
     icon: '\u{1F33F}',
     iconBg: '#DDE8DD',
     iconImage: '/icons/rootandrune.png',
+    status: 'in-development',
     lastModified: '2026-02-01',
     screenshots: [
       { src: '/screenshots/rootandrune-learn.png', alt: 'Root & Rune learn screen with moon phase, archives, and lesson progress' },

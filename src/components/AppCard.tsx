@@ -38,7 +38,7 @@ export default function AppCard({ app }: { app: AppInfo }) {
       </div>
 
       <p className="text-sm text-bark-300 leading-relaxed mb-4 flex-1">
-        {app.tagline}
+        {isDev ? 'Coming soon.' : app.tagline}
       </p>
 
       <p className="text-xs text-bark-200 mb-4">{app.price}</p>
