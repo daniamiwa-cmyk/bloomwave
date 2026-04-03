@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react'
 const slides = [
   {
     id: 'bloom',
-    icon: '/icons/bloom.jpg',
+    icon: '/icons/bloom.png',
     iconAlt: 'Bloom Affirmations icon',
     badge: 'Now Available',
     title: 'Bloom Affirmations is live',
