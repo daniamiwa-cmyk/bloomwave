@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import AppCard from '@/components/AppCard'
 import BannerCarousel from '@/components/BannerCarousel'
 import Newsletter from '@/components/Newsletter'
@@ -8,23 +7,6 @@ export default function Home() {
   return (
     <>
       <section className="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-6 pt-14 overflow-hidden">
-        {/* Floating painting decorations — desktop only */}
-        <Image
-          src="/art/painting-1.png"
-          alt=""
-          width={240}
-          height={180}
-          className="hidden md:block absolute -left-4 lg:left-8 top-1/4 opacity-30 -rotate-12 pointer-events-none select-none"
-          aria-hidden="true"
-        />
-        <Image
-          src="/art/painting-2.png"
-          alt=""
-          width={160}
-          height={213}
-          className="hidden md:block absolute -right-4 lg:right-8 top-1/3 opacity-30 rotate-12 pointer-events-none select-none"
-          aria-hidden="true"
-        />
 
         <svg
           className="w-16 h-16 text-forest-400 mb-8 opacity-60"
@@ -58,6 +40,15 @@ export default function Home() {
       </section>
 
       <BannerCarousel />
+
+      <section className="max-w-xl mx-auto px-6 pb-16 text-center">
+        <h2 className="font-serif text-2xl text-bark-600 mb-4">Welcome to BloomWave</h2>
+        <p className="text-bark-300 leading-relaxed">
+          BloomWave is a one-person studio making apps for the curious, the mystical, and the
+          beautifully weird. Each app is designed and built with care — no bloat, no noise, just
+          tools that feel good to use and mean something to the people who reach for them.
+        </p>
+      </section>
 
       <section className="max-w-6xl mx-auto px-6 pb-24">
         <div className="flex items-center gap-3 mb-12">
