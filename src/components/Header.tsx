@@ -9,6 +9,12 @@ export default function Header() {
         </Link>
         <nav className="flex items-center gap-5">
           <Link
+            href="/about"
+            className="text-sm text-bark-300 hover:text-forest-500 transition-colors"
+          >
+            About
+          </Link>
+          <Link
             href="/art"
             className="text-sm text-bark-300 hover:text-forest-500 transition-colors"
           >
@@ -27,7 +33,7 @@ export default function Header() {
             Support
           </Link>
           <a
-            href="mailto:chibijumpstore@gmail.com"
+            href="mailto:daniamiwa@bloomwave.app"
             className="text-sm text-bark-300 hover:text-forest-500 transition-colors"
           >
             Contact

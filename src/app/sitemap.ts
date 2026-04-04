@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: baseUrl, lastModified: new Date() },
     ...appPages,
+    { url: `${baseUrl}/about`, lastModified: new Date() },
     { url: `${baseUrl}/support`, lastModified: new Date() },
   ]
 }
