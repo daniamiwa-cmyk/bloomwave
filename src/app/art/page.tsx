@@ -67,6 +67,29 @@ export default function ArtPage() {
           </div>
         ))}
       </div>
+
+      <div className="flex items-center gap-3 my-12 justify-center">
+        <div className="w-12 h-px bg-forest-400/40" />
+        <div className="w-1.5 h-1.5 rounded-full bg-forest-400/40" />
+        <div className="w-12 h-px bg-forest-400/40" />
+      </div>
+
+      <div className="text-center">
+        <p className="text-bark-300 mb-6">Originals available in the shop.</p>
+        <a
+          href="https://miwaartist.etsy.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-forest-400 text-cream-50 font-medium hover:bg-forest-500 transition-colors"
+        >
+          Shop on Etsy
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </a>
+      </div>
     </section>
   )
 }

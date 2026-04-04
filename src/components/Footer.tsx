@@ -77,6 +77,16 @@ export default function Footer() {
                     daniamiwa@bloomwave.app
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="https://miwaartist.etsy.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-bark-400 hover:text-forest-500 transition-colors"
+                  >
+                    Etsy Shop
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
