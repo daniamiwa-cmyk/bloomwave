@@ -1,12 +1,14 @@
 import Link from 'next/link'
 
 const apps = [
-  { name: 'Bloom Affirmations', slug: 'bloom' },
-  { name: 'SpellCraft Studio', slug: 'spellcraft' },
+  { name: 'All Days', slug: 'all-days' },
   { name: 'Amaia', slug: 'amaia' },
+  { name: 'Bloom Affirmations', slug: 'bloom' },
+  { name: 'Chibi Jump', slug: 'chibi-jump' },
   { name: 'Fated & Jaded', slug: 'fated-and-jaded' },
   { name: 'Root & Rune', slug: 'root-and-rune' },
-  { name: 'Chibi Jump', slug: 'chibi-jump' },
+  { name: 'SpellCraft Studio', slug: 'spellcraft' },
+  { name: 'WildMind', slug: 'wildmind' },
 ]
 
 export default function Footer() {
@@ -69,10 +71,10 @@ export default function Footer() {
                 </li>
                 <li>
                   <a
-                    href="mailto:chibijumpstore@gmail.com"
+                    href="mailto:daniamiwa@bloomwave.app"
                     className="text-bark-400 hover:text-forest-500 transition-colors"
                   >
-                    chibijumpstore@gmail.com
+                    daniamiwa@bloomwave.app
                   </a>
                 </li>
               </ul>

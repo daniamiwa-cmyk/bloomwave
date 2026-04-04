@@ -14,6 +14,7 @@ export interface AppInfo {
 }
 
 export const apps: AppInfo[] = [
+  // Released
   {
     name: 'Bloom Affirmations',
     slug: 'bloom',
@@ -55,6 +56,19 @@ export const apps: AppInfo[] = [
       { src: '/screenshots/spellcraft-encyclopedia.png', alt: 'Encyclopedia of herbs, crystals, and oils' },
     ],
   },
+  // In Development — alphabetical
+  {
+    name: 'All Days',
+    slug: 'all-days',
+    tagline: 'Every tradition. Every day.',
+    description:
+      'All Days is a holiday calendar for everyone — spanning 33 world religions and cultures, from Western Christianity and Islam to Hmong, Somali, Korean, and Brazilian traditions. Whether you want to understand what a colleague observes, stay connected to your own roots, or simply be more aware of the world around you, All Days keeps you informed year-round. Browse 221 holidays across 33 traditions in Agenda, Daily, Weekly, and Monthly views. Filter by the traditions that matter to you, read holiday details with cultural context, and add observances directly to your Apple Calendar, Google Calendar, or Outlook with All Days+.',
+    price: 'Free + All Days+ $3.99/mo · $29.99/yr',
+    icon: '🌈',
+    iconBg: '#1a1a2e',
+    iconImage: '/icons/alldays.png',
+    status: 'in-development',
+  },
   {
     name: 'Amaia',
     slug: 'amaia',
@@ -66,7 +80,19 @@ export const apps: AppInfo[] = [
     icon: '\u{1F319}',
     iconBg: '#DDE8F0',
     iconImage: '/icons/amaia.png',
+    status: 'in-development',
     screenshots: [],
+  },
+  {
+    name: 'Chibi Jump',
+    slug: 'chibi-jump',
+    tagline:
+      'An old-school platformer starring a tiny, determined jumping spider. Simple. Addictive. Adorable.',
+    price: 'Free',
+    icon: '\u{1F577}\uFE0F',
+    iconBg: '#F0ECD5',
+    iconImage: '/icons/chibijump.png',
+    status: 'in-development',
   },
   {
     name: 'Fated & Jaded',
@@ -110,29 +136,6 @@ export const apps: AppInfo[] = [
     icon: '\u{1F43E}',
     iconBg: '#DDE8DD',
     iconImage: '/icons/wildmind.png',
-    status: 'in-development',
-  },
-  {
-    name: 'All Days',
-    slug: 'all-days',
-    tagline: 'Every tradition. Every day.',
-    description:
-      'All Days is a holiday calendar for everyone — spanning 33 world religions and cultures, from Western Christianity and Islam to Hmong, Somali, Korean, and Brazilian traditions. Whether you want to understand what a colleague observes, stay connected to your own roots, or simply be more aware of the world around you, All Days keeps you informed year-round. Browse 221 holidays across 33 traditions in Agenda, Daily, Weekly, and Monthly views. Filter by the traditions that matter to you, read holiday details with cultural context, and add observances directly to your Apple Calendar, Google Calendar, or Outlook with All Days+.',
-    price: 'Free + All Days+ $3.99/mo · $29.99/yr',
-    icon: '🌈',
-    iconBg: '#1a1a2e',
-    iconImage: '/icons/alldays.png',
-    status: 'in-development',
-  },
-  {
-    name: 'Chibi Jump',
-    slug: 'chibi-jump',
-    tagline:
-      'An old-school platformer starring a tiny, determined jumping spider. Simple. Addictive. Adorable.',
-    price: 'Free',
-    icon: '\u{1F577}\uFE0F',
-    iconBg: '#F0ECD5',
-    iconImage: '/icons/chibijump.png',
     status: 'in-development',
   },
 ]
