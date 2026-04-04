@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function Header() {
   return (
@@ -38,6 +39,7 @@ export default function Header() {
           >
             Contact
           </a>
+          <ThemeToggle />
         </nav>
       </div>
     </header>

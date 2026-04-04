@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ThemeProvider from '@/components/ThemeProvider'
 
 const dmSerif = DM_Serif_Display({
   weight: '400',
@@ -55,15 +56,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${dmSerif.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${dmSerif.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <ThemeProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>

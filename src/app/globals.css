@@ -2,18 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Light mode (default) ───────────────────────────────── */
+:root {
+  --cream-50:   255 253 247;
+  --cream-100:  253 246 236;
+  --cream-200:  245 234 219;
+  --cream-300:  232 220 200;
+
+  --forest-300: 107 158 123;
+  --forest-400:  74 140  92;
+  --forest-500:  61 107  79;
+  --forest-600:  42  78  56;
+  --forest-700:  28  55  38;
+
+  --bark-200:   160 139 116;
+  --bark-300:   139 115  85;
+  --bark-400:   107  87  68;
+  --bark-500:    74  55  40;
+  --bark-600:    44  24  16;
+
+  --sage-200:   200 219 200;
+  --sage-300:   176 204 176;
+  --sage-400:   139 174 139;
+  --sage-500:   107 142 107;
+
+  --gold-300:   223 192 112;
+  --gold-400:   212 170  79;
+  --gold-500:   184 147  11;
+}
+
+/* ── Dark mode ───────────────────────────────────────────── */
+.dark {
+  /* Surfaces — warm dark */
+  --cream-50:    22  18  13;
+  --cream-100:   26  22  16;
+  --cream-200:   36  30  22;
+  --cream-300:   54  44  34;
+
+  /* Greens — slightly brighter for dark bg */
+  --forest-300:  120 180 140;
+  --forest-400:   88 165 108;
+  --forest-500:   74 140  92;
+  --forest-600:   58 107  77;
+  --forest-700:   44  80  58;
+
+  /* Text — warm creams instead of warm browns */
+  --bark-200:   110  95  78;
+  --bark-300:   155 138 115;
+  --bark-400:   190 172 148;
+  --bark-500:   220 205 182;
+  --bark-600:   245 235 218;
+
+  --sage-200:    50  70  52;
+  --sage-300:    68  95  70;
+  --sage-400:   100 140 102;
+  --sage-500:    85 118  87;
+
+  --gold-300:   200 170  90;
+  --gold-400:   185 148  62;
+  --gold-500:   160 125  10;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: #FDF6EC;
-  color: #2C1810;
+  background-color: rgb(var(--cream-100));
+  color: rgb(var(--bark-600));
 }
 
 ::selection {
-  background-color: #8BAE8B;
-  color: #2C1810;
+  background-color: rgb(var(--sage-400));
+  color: rgb(var(--bark-600));
 }
 
 @layer utilities {
