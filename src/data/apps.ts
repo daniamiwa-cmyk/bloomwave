@@ -1,3 +1,9 @@
+export interface AppFeature {
+  icon: string
+  title: string
+  description: string
+}
+
 export interface AppInfo {
   name: string
   slug: string
@@ -10,6 +16,7 @@ export interface AppInfo {
   status?: 'coming-soon' | 'in-development' | 'available'
   appStoreUrl?: string
   screenshots?: { src: string; alt: string }[]
+  features?: AppFeature[]
   lastModified?: string
 }
 
@@ -29,6 +36,12 @@ export const apps: AppInfo[] = [
     status: 'available',
     appStoreUrl: 'https://apps.apple.com/us/app/bloom-affirmation/id6759355085',
     lastModified: '2025-11-01',
+    features: [
+      { icon: '🌸', title: 'Daily Cards', description: 'Three new cards every morning — an affirmation, a mini-meditation, and a creative prompt.' },
+      { icon: '🤍', title: 'AI Coach', description: 'Talk through anything with an AI coach grounded in real coaching principles. No toxic positivity.' },
+      { icon: '📓', title: 'Mood Journal', description: 'Log how you\'re feeling, reflect on what resonated, and build a record of your inner life over time.' },
+      { icon: '🌿', title: 'Intentional Living', description: 'A quiet daily practice that meets you where you are — honest, simple, and genuinely useful.' },
+    ],
     screenshots: [
       { src: '/screenshots/bloom-home.png', alt: 'Bloom home screen with daily affirmation card' },
       { src: '/screenshots/bloom-journal-entry.png', alt: 'Journal entry with mood check-in' },
@@ -50,6 +63,12 @@ export const apps: AppInfo[] = [
     status: 'available',
     appStoreUrl: 'https://apps.apple.com/us/app/spell-craft-studio/id6760242229',
     lastModified: '2025-12-01',
+    features: [
+      { icon: '📖', title: 'Encyclopedia', description: 'Browse a curated library of herbs, crystals, oils, and magical correspondences — beautifully organized and easy to search.' },
+      { icon: '✨', title: 'Spell Crafting', description: 'Build your own spells with guided intention-setting. Choose your purpose, tools, and timing.' },
+      { icon: '🌕', title: 'Moon Phases', description: 'Track the current moon phase and align your practice with the lunar cycle.' },
+      { icon: '📜', title: 'Your Grimoire', description: 'Save spells, notes, and discoveries to your personal grimoire — a private record of your practice.' },
+    ],
     screenshots: [
       { src: '/screenshots/spellcraft-home.png', alt: 'SpellCraft home screen showing moon phase and daily wisdom' },
       { src: '/screenshots/spellcraft-craft.png', alt: 'Craft a spell interface with intention categories' },
