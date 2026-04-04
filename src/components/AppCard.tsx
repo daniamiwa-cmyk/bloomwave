@@ -33,7 +33,7 @@ export default function AppCard({ app }: { app: AppInfo }) {
       <div className="flex items-start justify-between gap-3 mb-2">
         <h3 className="font-serif text-xl text-bark-600">{app.name}</h3>
         <span className={`text-[10px] font-medium uppercase tracking-wider px-2 py-1 rounded-full whitespace-nowrap ${isAvailable ? 'bg-forest-400/10 text-forest-500' : isDev ? 'bg-bark-100/50 text-bark-300' : 'bg-cream-300 text-bark-400'}`}>
-          {isAvailable ? 'Available Now' : isDev ? 'In Development' : 'Coming Soon'}
+          {isAvailable ? 'Available Now' : 'Coming Soon'}
         </span>
       </div>
 
