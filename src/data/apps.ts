@@ -135,8 +135,9 @@ export const apps: AppInfo[] = [
     icon: '\u{1F33F}',
     iconBg: '#DDE8DD',
     iconImage: '/icons/rootandrune.png',
-    status: 'in-development',
-    lastModified: '2026-02-01',
+    status: 'available',
+    appStoreUrl: 'https://apps.apple.com/us/app/root-rune/id6760574296',
+    lastModified: '2026-04-14',
     screenshots: [
       { src: '/screenshots/rootandrune-learn.png', alt: 'Root & Rune learn screen with moon phase, archives, and lesson progress' },
       { src: '/screenshots/rootandrune-paths.png', alt: 'Dream Worker path with structured lessons' },
