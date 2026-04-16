@@ -40,10 +40,12 @@ export default function FadeIn({
 export function FadeInStagger({
   children,
   className,
+  style,
   staggerDelay = 0.08,
 }: {
   children: React.ReactNode
   className?: string
+  style?: React.CSSProperties
   staggerDelay?: number
 }) {
   const ref = useRef(null)
@@ -53,6 +55,7 @@ export function FadeInStagger({
     <motion.div
       ref={ref}
       className={className}
+      style={style}
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
       variants={{
