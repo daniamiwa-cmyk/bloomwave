@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { usePersonaStore } from '@/stores/personaStore';
 import { useChatStore } from '@/stores/chatStore';
+import { useAuthStore } from '@/stores/authStore';
 import { getPortrait } from '@/utils/portraitMap';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
@@ -23,6 +24,7 @@ export default function PersonaDetailScreen() {
   const { personaId } = useLocalSearchParams<{ personaId: string }>();
   const { personas, loadGallery } = usePersonaStore();
   const { createThread } = useChatStore();
+  const { profile } = useAuthStore();
   const router = useRouter();
   const [creating, setCreating] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -111,20 +113,36 @@ export default function PersonaDetailScreen() {
 
       {/* CTA */}
       <View style={styles.ctaContainer}>
-        <TouchableOpacity
-          style={[styles.ctaButton, { backgroundColor: persona.color || colors.primary }]}
-          onPress={handleStartThread}
-          disabled={creating}
-        >
-          {creating ? (
-            <ActivityIndicator size="small" color="#FFF" />
-          ) : (
-            <>
-              <Ionicons name="chatbubble-ellipses" size={20} color="#FFF" />
-              <Text style={styles.ctaText}>Start a thread with {persona.name}</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        {persona.tier === 4 && !profile?.is_member ? (
+          <>
+            <View style={styles.lockNote}>
+              <Ionicons name="lock-closed" size={14} color={colors.textMuted} />
+              <Text style={styles.lockNoteText}>Exclusive to Amaia members</Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.ctaButton, { backgroundColor: colors.primary }]}
+              onPress={() => router.push('/(main)/settings/subscription')}
+            >
+              <Ionicons name="sparkles" size={20} color="#FFF" />
+              <Text style={styles.ctaText}>Unlock with Membership</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <TouchableOpacity
+            style={[styles.ctaButton, { backgroundColor: persona.color || colors.primary }]}
+            onPress={handleStartThread}
+            disabled={creating}
+          >
+            {creating ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <>
+                <Ionicons name="chatbubble-ellipses" size={20} color="#FFF" />
+                <Text style={styles.ctaText}>Start a thread with {persona.name}</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -234,5 +252,16 @@ const styles = StyleSheet.create({
   ctaText: {
     ...typography.button,
     color: '#FFF',
+  },
+  lockNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  lockNoteText: {
+    ...typography.caption,
+    color: colors.textMuted,
   },
 });

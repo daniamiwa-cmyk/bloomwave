@@ -91,17 +91,20 @@ export async function sendMessage(
 
   // 11. Async: update access counts
   if (memories.length > 0) {
-    memoryRetrieval.updateAccessCounts(memories.map((m) => m.id)).catch(() => {});
+    memoryRetrieval.updateAccessCounts(memories.map((m) => m.id))
+      .catch((err) => console.warn('[chat] Failed to update memory access counts:', err?.message));
   }
 
   // 12. Async: generate thread summary every 20 messages
   const newCount = thread ? thread.message_count + 2 : 2;
   if (newCount > 0 && newCount % 20 === 0) {
-    threadSummary.generateThreadSummary(threadId).catch(() => {});
+    threadSummary.generateThreadSummary(threadId)
+      .catch((err) => console.warn('[chat] Failed to generate thread summary:', err?.message));
   }
 
   // 13. Async: check milestone unlocks
-  personaService.checkMilestoneUnlocks(userId).catch(() => {});
+  personaService.checkMilestoneUnlocks(userId)
+    .catch((err) => console.warn('[chat] Failed to check milestone unlocks:', err?.message));
 
   return {
     user_message: userMessage,

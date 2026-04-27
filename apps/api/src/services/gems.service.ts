@@ -3,6 +3,8 @@ import { InsufficientGemsError } from '../utils/errors.js';
 // Inlined from @amai/shared — ESM/CJS interop prevents named imports of constants
 const GEM_COST_PER_MESSAGE = 1;
 const FREE_DAILY_GEMS = 10;
+const MEMBER_DAILY_GEMS = 25;
+const MEMBER_GEM_BONUS_PCT = 0.20;
 import { env } from '../config/env.js';
 
 export async function getBalance(userId: string): Promise<number> {
@@ -96,6 +98,14 @@ export async function claimDailyGems(userId: string): Promise<{ claimed: boolean
     return { claimed: false, balance: data.gems };
   }
 
+  // Members get more daily gems
+  const { data: profile } = await supabaseAdmin
+    .from('user_profiles')
+    .select('is_member')
+    .eq('user_id', userId)
+    .single();
+  const dailyAmount = profile?.is_member ? MEMBER_DAILY_GEMS : FREE_DAILY_GEMS;
+
   // Atomic claim: only update last_free_gems_at if it hasn't changed (prevents concurrent claims)
   const cutoff = new Date(now.getTime() - 24 * 3600000).toISOString();
   const { data: updated, error: updateError } = await supabaseAdmin
@@ -116,16 +126,16 @@ export async function claimDailyGems(userId: string): Promise<{ claimed: boolean
   // Atomic increment for daily gems
   const { data: newBalance, error: rpcError } = await supabaseAdmin.rpc('add_gems', {
     p_user_id: userId,
-    p_amount: FREE_DAILY_GEMS,
+    p_amount: dailyAmount,
   });
 
   if (rpcError) throw rpcError;
 
   await supabaseAdmin.from('gem_transactions').insert({
     user_id: userId,
-    amount: FREE_DAILY_GEMS,
+    amount: dailyAmount,
     type: 'bonus',
-    description: 'Daily free gems',
+    description: profile?.is_member ? 'Daily member gems' : 'Daily free gems',
   });
 
   return { claimed: true, balance: newBalance as number };
@@ -163,12 +173,25 @@ export async function verifyRevenueCatTransaction(
   }
 
   const data = await res.json();
-  const nonSubs = data.subscriber?.non_subscriptions ?? {};
-  const productTransactions = nonSubs[productId] ?? [];
+  const subscriber = data.subscriber ?? {};
 
-  return productTransactions.some(
+  // Check non-subscription (consumable) purchases
+  const nonSubs = subscriber.non_subscriptions ?? {};
+  const productTransactions = nonSubs[productId] ?? [];
+  if (productTransactions.some(
     (t: any) => t.store_transaction_id === transactionId || t.id === transactionId,
-  );
+  )) {
+    return true;
+  }
+
+  // Also check subscriptions (for subscription product verification)
+  const subs = subscriber.subscriptions ?? {};
+  const subEntry = subs[productId];
+  if (subEntry && (subEntry.store_transaction_id === transactionId || subEntry.original_purchase_server_notification_id === transactionId)) {
+    return true;
+  }
+
+  return false;
 }
 
 export async function checkTransactionProcessed(transactionId: string): Promise<boolean> {
@@ -194,4 +217,45 @@ export async function getProducts() {
     .order('gems', { ascending: true });
 
   return data || [];
+}
+
+export async function getSubscriptionProducts() {
+  const { data } = await supabaseAdmin
+    .from('subscription_products')
+    .select('*')
+    .eq('is_active', true)
+    .order('price_usd', { ascending: true });
+
+  return data || [];
+}
+
+export async function getSubscriptionStatus(userId: string) {
+  const { data } = await supabaseAdmin
+    .from('user_profiles')
+    .select('is_member, membership_type, membership_expires_at')
+    .eq('user_id', userId)
+    .single();
+
+  return {
+    is_member: data?.is_member ?? false,
+    membership_type: data?.membership_type ?? null,
+    membership_expires_at: data?.membership_expires_at ?? null,
+  };
+}
+
+/**
+ * Calculates how many gems to credit for a purchase.
+ * Members receive a 20% bonus on top of the product's base gems.
+ */
+export async function gemsForPurchase(userId: string, baseGems: number): Promise<number> {
+  const { data } = await supabaseAdmin
+    .from('user_profiles')
+    .select('is_member')
+    .eq('user_id', userId)
+    .single();
+
+  if (data?.is_member) {
+    return Math.floor(baseGems * (1 + MEMBER_GEM_BONUS_PCT));
+  }
+  return baseGems;
 }

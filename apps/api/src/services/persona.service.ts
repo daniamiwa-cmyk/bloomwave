@@ -190,6 +190,15 @@ async function checkRequirement(
       return streak >= value;
     }
 
+    case 'subscription': {
+      const { data } = await supabaseAdmin
+        .from('user_profiles')
+        .select('is_member')
+        .eq('user_id', userId)
+        .single();
+      return data?.is_member === true;
+    }
+
     default:
       return false;
   }
@@ -198,7 +207,7 @@ async function checkRequirement(
 export async function checkMilestoneUnlocks(userId: string): Promise<string[]> {
   // Get all locked personas for this user
   const [allPersonas, userUnlocks] = await Promise.all([
-    supabaseAdmin.from('personas').select('id, unlock_requirement, name, tier').neq('tier', 4),
+    supabaseAdmin.from('personas').select('id, unlock_requirement, name, tier'),
     supabaseAdmin.from('user_persona_unlocks').select('persona_id').eq('user_id', userId),
   ]);
 

@@ -29,3 +29,21 @@ export interface GemProduct {
 export const GEM_COST_PER_MESSAGE = 1;
 export const GEM_COST_DEEP_SESSION = 5;
 export const FREE_DAILY_GEMS = 10;
+export const MEMBER_DAILY_GEMS = 25;
+export const MEMBER_GEM_BONUS_PCT = 0.20; // members get 20% bonus gems on every purchase
+
+export interface SubscriptionProduct {
+  id: string;
+  product_id: string;
+  label: string;
+  interval: 'monthly' | 'annual';
+  price_usd: number;
+  monthly_gems: number;
+  is_active: boolean;
+}
+
+export interface SubscriptionStatus {
+  is_member: boolean;
+  membership_type: string | null;
+  membership_expires_at: string | null;
+}

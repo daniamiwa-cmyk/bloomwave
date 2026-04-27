@@ -53,13 +53,16 @@ export const gemsRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(403).send({ error: 'Transaction verification failed' });
     }
 
+    // Members get a 20% bonus on every gem purchase
+    const gemsToCredit = await gemsService.gemsForPurchase(request.userId, product.gems);
+
     let balance: number;
     try {
       balance = await gemsService.addGems(
         request.userId,
-        product.gems,
+        gemsToCredit,
         'purchase',
-        `Purchased ${product.label}`,
+        `Purchased ${product.label}${gemsToCredit > product.gems ? ' (member bonus applied)' : ''}`,
         product_id,
         transaction_id,
       );
@@ -67,12 +70,12 @@ export const gemsRoutes: FastifyPluginAsync = async (fastify) => {
       // Unique constraint violation — duplicate transaction
       if (err?.code === '23505') {
         const currentBalance = await gemsService.getBalance(request.userId);
-        return { gems: currentBalance, purchased: product.gems };
+        return { gems: currentBalance, purchased: gemsToCredit };
       }
       throw err;
     }
 
-    return { gems: balance, purchased: product.gems };
+    return { gems: balance, purchased: gemsToCredit };
   });
 
   // Get transaction history

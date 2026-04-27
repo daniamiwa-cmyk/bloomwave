@@ -3,6 +3,9 @@ import { supabase } from '../services/supabase';
 import { api } from '../services/api';
 import type { UserProfile } from '@amai/shared';
 
+// Module-level ref — prevents double-subscribe on hot reload / StrictMode
+let authSub: { unsubscribe: () => void } | null = null;
+
 interface AuthState {
   userId: string | null;
   email: string | null;
@@ -26,6 +29,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
 
   initialize: async () => {
+    // Guard against double-init (dev hot reload / React StrictMode)
+    if (authSub) return;
+
     const { data } = await supabase.auth.getSession();
     if (data.session?.user) {
       set({
@@ -51,8 +57,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ userId: null, email: null, profile: null, isAuthenticated: false });
       }
     });
-    // Store subscription for potential cleanup
-    (globalThis as any).__authSubscription = subscription;
+    authSub = subscription;
   },
 
   signUp: async (email, password) => {

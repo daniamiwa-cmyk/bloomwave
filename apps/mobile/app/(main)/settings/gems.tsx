@@ -8,7 +8,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '@/services/api';
@@ -121,12 +121,22 @@ export default function GemsScreen() {
           <Text style={styles.balanceLabel}>gems remaining</Text>
         </View>
 
-        {/* Membership banner (shown only if user is already a member) */}
-        {profile?.is_member && (
+        {/* Membership banner */}
+        {profile?.is_member ? (
           <View style={styles.memberBadge}>
             <Ionicons name="star" size={18} color={colors.primary} />
-            <Text style={styles.memberBadgeText}>Member — you get discounted gem prices</Text>
+            <Text style={styles.memberBadgeText}>Member — you get 25 daily gems and 20% more on every purchase</Text>
           </View>
+        ) : (
+          <Link href="/(main)/settings/subscription" asChild>
+            <TouchableOpacity style={styles.memberUpsell} activeOpacity={0.85}>
+              <View style={styles.memberUpsellLeft}>
+                <Text style={styles.memberUpsellTitle}>✦ Amaia Member</Text>
+                <Text style={styles.memberUpsellSub}>25 daily gems · 20% bonus · exclusive companions</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+            </TouchableOpacity>
+          </Link>
         )}
 
         {/* Daily claim */}
@@ -330,6 +340,30 @@ const styles = StyleSheet.create({
     ...typography.bodySmall,
     color: colors.primary,
     fontWeight: '600',
+  },
+  memberUpsell: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary + '08',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    borderWidth: 1.5,
+    borderColor: colors.primary + '30',
+    gap: spacing.sm,
+  },
+  memberUpsellLeft: {
+    flex: 1,
+  },
+  memberUpsellTitle: {
+    ...typography.bodySmall,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 2,
+  },
+  memberUpsellSub: {
+    ...typography.caption,
+    color: colors.textSecondary,
   },
   restoreButton: {
     alignItems: 'center',

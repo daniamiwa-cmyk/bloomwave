@@ -50,6 +50,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       `/api/v1/chat/${threadId}/history?page=${page}&limit=30`,
     );
 
+    // Discard if the user navigated away before this resolved
+    if (get().currentThreadId !== threadId) return;
+
     if (page === 0) {
       set({ messages: data.messages, hasMore: data.has_more, isLoadingHistory: false });
     } else {

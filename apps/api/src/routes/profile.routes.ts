@@ -34,11 +34,15 @@ export const profileRoutes: FastifyPluginAsync = async (fastify) => {
       if (!year || !month || !day) {
         return request.server.httpErrors.forbidden('Invalid date of birth');
       }
-      const today = new Date();
-      const birthDate = new Date(year, month - 1, day);
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+      // Use UTC throughout to avoid timezone-based age miscalculation
+      const todayUtc = new Date();
+      const birthDate = new Date(Date.UTC(year, month - 1, day));
+      if (isNaN(birthDate.getTime()) || birthDate > todayUtc) {
+        return request.server.httpErrors.forbidden('Invalid date of birth');
+      }
+      let age = todayUtc.getUTCFullYear() - birthDate.getUTCFullYear();
+      const m = todayUtc.getUTCMonth() - birthDate.getUTCMonth();
+      if (m < 0 || (m === 0 && todayUtc.getUTCDate() < birthDate.getUTCDate())) age--;
       if (age < 18) {
         return request.server.httpErrors.forbidden('Must be 18 or older for fantasy mode');
       }

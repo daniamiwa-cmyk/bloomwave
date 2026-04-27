@@ -12,7 +12,7 @@ export type PersonaArchetype =
   | 'healer'
   | 'provocateur';
 
-export type UnlockMethod = 'starter' | 'messages' | 'streak' | 'threads' | 'gems';
+export type UnlockMethod = 'starter' | 'messages' | 'streak' | 'threads' | 'gems' | 'subscription';
 
 export interface UnlockRequirement {
   method: UnlockMethod;

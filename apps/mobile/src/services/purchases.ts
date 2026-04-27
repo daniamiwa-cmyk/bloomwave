@@ -76,6 +76,53 @@ export async function purchaseGems(
   return result;
 }
 
+export async function purchaseSubscription(
+  productId: 'amaia_monthly' | 'amaia_annual',
+): Promise<{ is_member: boolean; membership_type: string }> {
+  ensureConfigured();
+  const Purchases = getPurchases();
+
+  const offerings = await Purchases.getOfferings();
+  const subscriptionOffering = offerings.all['Amaia_Subscriptions'] ?? offerings.current;
+
+  if (!subscriptionOffering) {
+    throw new Error('Subscription offering not available');
+  }
+
+  const pkg = subscriptionOffering.availablePackages.find(
+    (p) => p.product.identifier === productId,
+  );
+
+  if (!pkg) {
+    throw new Error(`Subscription product not found: ${productId}`);
+  }
+
+  await Purchases.purchasePackage(pkg);
+
+  // Server reads subscription status directly from RevenueCat via webhook;
+  // return optimistic status — the UI should refetch profile to confirm.
+  return { is_member: true, membership_type: productId };
+}
+
+export async function getSubscriptionStatus(): Promise<{
+  is_member: boolean;
+  membership_type: string | null;
+}> {
+  ensureConfigured();
+  const Purchases = getPurchases();
+  const info = await Purchases.getCustomerInfo();
+
+  const activeEntitlements = Object.keys(info.entitlements.active);
+  const isMember = activeEntitlements.includes('Alora Pro');
+
+  const activeSubs = info.activeSubscriptions;
+  const membershipType = activeSubs.find(
+    (s) => s === 'amaia_monthly' || s === 'amaia_annual',
+  ) ?? null;
+
+  return { is_member: isMember, membership_type: membershipType };
+}
+
 export async function restorePurchases() {
   ensureConfigured();
   await getPurchases().restorePurchases();

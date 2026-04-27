@@ -11,6 +11,7 @@ import { gemsRoutes } from './routes/gems.routes.js';
 import { personaRoutes } from './routes/personas.routes.js';
 import { personaRequestRoutes } from './routes/personaRequests.routes.js';
 import { webhookRoutes } from './routes/webhooks.routes.js';
+import { subscriptionRoutes } from './routes/subscription.routes.js';
 import { AppError } from './utils/errors.js';
 
 export async function buildApp() {
@@ -56,6 +57,7 @@ export async function buildApp() {
   await app.register(personaRoutes, { prefix: '/api/v1/personas' });
   await app.register(personaRequestRoutes, { prefix: '/api/v1/persona-requests' });
   await app.register(webhookRoutes, { prefix: '/webhooks' });
+  await app.register(subscriptionRoutes, { prefix: '/api/v1/subscription' });
 
   // Global error handler
   app.setErrorHandler((error, request, reply) => {

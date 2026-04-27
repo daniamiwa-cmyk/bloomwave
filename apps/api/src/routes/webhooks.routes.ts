@@ -33,17 +33,49 @@ export const webhookRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     // Subscription events — manage membership
-    const subProducts = ['monthly', 'yearly', 'lifetime'];
+    const subProducts = ['amaia_monthly', 'amaia_annual'];
     const isSubscriptionProduct = subProducts.includes(productId);
 
     if (
-      (eventType === 'INITIAL_PURCHASE' || eventType === 'RENEWAL') &&
+      (eventType === 'INITIAL_PURCHASE' || eventType === 'RENEWAL' || eventType === 'UNCANCELLATION') &&
       isSubscriptionProduct
     ) {
+      // Calculate expiration: monthly = 35 days buffer, annual = 370 days buffer
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + (productId === 'amaia_annual' ? 370 : 35));
+
       await supabaseAdmin
         .from('user_profiles')
-        .update({ is_member: true, membership_type: productId })
+        .update({
+          is_member: true,
+          membership_type: productId,
+          membership_expires_at: expiresAt.toISOString(),
+        })
         .eq('user_id', appUserId);
+
+      // On renewal, grant monthly included gems
+      if (eventType === 'RENEWAL') {
+        const { data: subProduct } = await supabaseAdmin
+          .from('subscription_products')
+          .select('monthly_gems, label')
+          .eq('product_id', productId)
+          .single();
+
+        if (subProduct && subProduct.monthly_gems > 0) {
+          const renewalTxnId = `renewal-gems-${transactionId}`;
+          const alreadyCredited = await gemsService.checkTransactionProcessed(renewalTxnId);
+          if (!alreadyCredited) {
+            await gemsService.addGems(
+              appUserId,
+              subProduct.monthly_gems,
+              'bonus',
+              `Monthly gems — ${subProduct.label}`,
+              productId,
+              renewalTxnId,
+            );
+          }
+        }
+      }
 
       return reply.code(200).send({ ok: true, status: 'member_activated' });
     }
@@ -116,10 +148,10 @@ export const webhookRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(200).send({ ok: true, status: 'refunded' });
     }
 
-    if (eventType === 'EXPIRATION') {
+    if (eventType === 'EXPIRATION' && isSubscriptionProduct) {
       await supabaseAdmin
         .from('user_profiles')
-        .update({ is_member: false, membership_type: null })
+        .update({ is_member: false, membership_type: null, membership_expires_at: null })
         .eq('user_id', appUserId);
 
       return reply.code(200).send({ ok: true, status: 'member_expired' });
